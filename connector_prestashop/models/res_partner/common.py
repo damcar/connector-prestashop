@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
-from openerp import models, fields
-
-from ...unit.backend_adapter import GenericAdapter
-from ...backend import prestashop
+from odoo import models, fields, api
+from odoo.addons.component.core import Component
 
 
 class ResPartner(models.Model):
@@ -20,6 +18,8 @@ class ResPartner(models.Model):
         inverse_name='odoo_id',
         string='PrestaShop Address Bindings',
     )
+    newsletter = fields.Boolean(string='Newsletter')
+    birthday = fields.Date(string='Birthday')
 
 
 class PrestashopPartnerMixin(models.AbstractModel):
@@ -52,7 +52,7 @@ class PrestashopPartnerMixin(models.AbstractModel):
 class PrestashopResPartner(models.Model):
     _name = 'prestashop.res.partner'
     _inherit = [
-        'prestashop.binding.odoo',
+        'prestashop.binding',
         'prestashop.partner.mixin',
     ]
     _inherits = {'res.partner': 'odoo_id'}
@@ -82,8 +82,8 @@ class PrestashopResPartner(models.Model):
         comodel_name='prestashop.shop',
         string='PrestaShop Shop',
     )
-    newsletter = fields.Boolean(string='Newsletter')
-    birthday = fields.Date(string='Birthday')
+    # newsletter = fields.Boolean(string='Newsletter')
+    # birthday = fields.Date(string='Birthday')
 
 
 class PrestashopAddressMixin(models.AbstractModel):
@@ -102,7 +102,7 @@ class PrestashopAddressMixin(models.AbstractModel):
 class PrestashopAddress(models.Model):
     _name = 'prestashop.address'
     _inherit = [
-        'prestashop.binding.odoo',
+        'prestashop.binding',
         'prestashop.address.mixin',
     ]
     _inherits = {'res.partner': 'odoo_id'}
@@ -138,13 +138,17 @@ class PrestashopAddress(models.Model):
     vat_number = fields.Char('PrestaShop VAT')
 
 
-@prestashop
-class PartnerAdapter(GenericAdapter):
-    _model_name = 'prestashop.res.partner'
+class PartnerAdapter(Component):
+    _name = 'prestashop.res.partner.adapter'
+    _inherit = 'prestashop.adapter'
+    _apply_on = 'prestashop.res.partner'
+
     _prestashop_model = 'customers'
 
 
-@prestashop
-class PartnerAddressAdapter(GenericAdapter):
-    _model_name = 'prestashop.address'
+class PartnerAddressAdapter(Component):
+    _name = 'prestashop.address.adapter'
+    _inherit = 'prestashop.adapter'
+    _apply_on = 'prestashop.address'
+
     _prestashop_model = 'addresses'

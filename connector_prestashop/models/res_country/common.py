@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
-
-from openerp import fields, models
-
-from ...unit.backend_adapter import GenericAdapter
-from ...backend import prestashop
+from odoo import models, fields
+from odoo.addons.component.core import Component
 
 
 class PrestashopResCountry(models.Model):
     _name = 'prestashop.res.country'
-    _inherit = 'prestashop.binding.odoo'
+    _inherit = 'prestashop.binding'
     _inherits = {'res.country': 'odoo_id'}
 
     odoo_id = fields.Many2one(
@@ -33,7 +30,9 @@ class ResCountry(models.Model):
     )
 
 
-@prestashop
-class ResCountryAdapter(GenericAdapter):
-    _model_name = 'prestashop.res.country'
+class ProductCategoryAdapter(Component):
+    _name = 'prestashop.res.country.adapter'
+    _inherit = 'prestashop.adapter'
+    _apply_on = 'prestashop.res.country'
+
     _prestashop_model = 'countries'

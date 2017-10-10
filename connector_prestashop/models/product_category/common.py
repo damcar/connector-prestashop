@@ -1,26 +1,23 @@
 # -*- coding: utf-8 -*-
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
-from openerp import models, fields
-
-from ...unit.backend_adapter import GenericAdapter
-
-from ...backend import prestashop
+from odoo import models, fields, api
+from odoo.addons.component.core import Component
 
 
-class ProductCategory(models.Model):
-    _inherit = 'product.category'
-
-    prestashop_bind_ids = fields.One2many(
-        comodel_name='prestashop.product.category',
-        inverse_name='odoo_id',
-        string="PrestaShop Bindings",
-    )
+# class ProductCategory(models.Model):
+#     _inherit = 'product.category'
+#
+#     prestashop_bind_ids = fields.One2many(
+#         comodel_name='prestashop.product.category',
+#         inverse_name='odoo_id',
+#         string="PrestaShop Bindings",
+#     )
 
 
 class PrestashopProductCategory(models.Model):
     _name = 'prestashop.product.category'
-    _inherit = 'prestashop.binding.odoo'
+    _inherit = 'prestashop.binding'
     _inherits = {'product.category': 'odoo_id'}
 
     odoo_id = fields.Many2one(
@@ -50,9 +47,17 @@ class PrestashopProductCategory(models.Model):
     position = fields.Integer(string='Position')
 
 
-@prestashop
-class ProductCategoryAdapter(GenericAdapter):
-    _model_name = 'prestashop.product.category'
+class ProductCategoryAdapter(Component):
+    _name = 'prestashop.product.category.adapter'
+    _inherit = 'prestashop.adapter'
+    _apply_on = 'prestashop.product.category'
+
     _prestashop_model = 'categories'
-    _export_node_name = 'category'
-    _export_node_name_res = 'category'
+
+
+# @prestashop
+# class ProductCategoryAdapter(GenericAdapter):
+#     _model_name = 'prestashop.product.category'
+#     _prestashop_model = 'categories'
+#     _export_node_name = 'category'
+#     _export_node_name_res = 'category'

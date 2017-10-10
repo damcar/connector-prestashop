@@ -1,35 +1,27 @@
 # -*- coding: utf-8 -*-
+# Copyright 2017 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
-from openerp import _
-from openerp.addons.connector.unit.mapper import ImportMapper, mapping
-from ...unit.importer import PrestashopImporter, DirectBatchImporter
-from ...backend import prestashop
+from odoo.addons.component.core import Component
 
 
-@prestashop
-class ShopGroupImportMapper(ImportMapper):
-    _model_name = 'prestashop.shop.group'
+class PrestaShopMetadataBatchImporter(Component):
+    """ Import the records directly, without delaying the jobs.
 
-    direct = [('name', 'name')]
+    Import the Magento Websites, Stores, Storeviews
 
-    @mapping
-    def name(self, record):
-        name = record['name']
-        if name is None:
-            name = _('Undefined')
-        return {'name': name}
+    They are imported directly because this is a rare and fast operation,
+    and we don't really bother if it blocks the UI during this time.
+    (that's also a mean to rapidly check the connectivity with Magento).
 
-    @mapping
-    def backend_id(self, record):
-        return {'backend_id': self.backend_record.id}
+    """
 
-
-@prestashop
-class ShopGroupImporter(PrestashopImporter):
-    _model_name = 'prestashop.shop.group'
-
-
-@prestashop
-class ShopGroupBatchImporter(DirectBatchImporter):
-    _model_name = 'prestashop.shop.group'
+    _name = 'prestashop.metadata.batch.importer'
+    _inherit = 'prestashop.direct.batch.importer'
+    _apply_on = [
+        'prestashop.shop.group',
+        'prestashop.shop',
+        'prestashop.res.lang',
+        'prestashop.res.country',
+        'prestashop.account.tax',
+    ]

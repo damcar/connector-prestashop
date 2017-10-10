@@ -167,10 +167,11 @@
                     </page>
                     <page string="Languages">
                         <field name="language_ids" nolabel="1">
-                            <tree>
+                            <tree editable="bottom">
                                 <field name="active"/>
                                 <field name="code"/>
                                 <field name="name"/>
+                                <field name="default"/>
                             </tree>
                         </field>
                     </page>
@@ -199,17 +200,22 @@
 </record>
 
 
+
+
 <record id="view_prestashop_shop_group_form" model="ir.ui.view">
     <field name="name">prestashop.shop.group.form</field>
     <field name="model">prestashop.shop.group</field>
     <field name="arch" type="xml">
         <form string="PrestaShop Shop Group">
-            <h1>
-                <field name="name" class="oe_inline"/>
-            </h1>
-            <group>
-                <field name="backend_id"/>
-            </group>
+            <sheet>
+                <h1>
+                    <field name="name" class="oe_inline"/>
+                </h1>
+                <group>
+                    <field name="backend_id"/>
+                    <field name="company_id"/>
+                </group>
+            </sheet>
         </form>
     </field>
 </record>
@@ -221,6 +227,7 @@
         <tree string="PrestaShop Shop Group">
             <field name="name"/>
             <field name="backend_id"/>
+            <field name="company_id"/>
         </tree>
     </field>
 </record>
@@ -231,6 +238,8 @@
     <field name="view_type">form</field>
     <field name="view_mode">tree,form</field>
 </record>
+
+
 
 
 <record id="view_prestashop_shop_form" model="ir.ui.view">
@@ -244,10 +253,7 @@
                 </h1>
                 <group>
                     <field name="shop_group_id"/>
-                    <field name="odoo_id"/>
-                </group>
-                <group>
-                    <field name="default_url"/>
+                    <field name="warehouse_id"/>
                 </group>
             </sheet>
         </form>
@@ -261,7 +267,7 @@
         <tree string="PrestaShop Shop">
             <field name="name"/>
             <field name="shop_group_id"/>
-            <field name="odoo_id"/>
+            <field name="warehouse_id"/>
         </tree>
     </field>
 </record>

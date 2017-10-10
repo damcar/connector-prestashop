@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
-from openerp.addons.connector.unit.mapper import ImportMapper, mapping
-from ...unit.importer import (
-    TranslatableRecordImporter,
-    import_record,
-    DelayedBatchImporter,
-)
-from ...backend import prestashop
+from odoo import _
+from odoo.addons.component.core import Component
+from odoo.addons.connector.components.mapper import mapping
+from odoo.addons.connector.unit.mapper import external_to_m2o
+from odoo.addons.connector.exception import MappingError, InvalidDataError
 
 
-@prestashop
-class PartnerCategoryImportMapper(ImportMapper):
-    _model_name = 'prestashop.res.partner.category'
+class PartnerCategoryImportMapper(Component):
+    _name = 'prestashop.res.partner.category.mapper'
+    _inherit = 'prestashop.import.mapper'
+    _apply_on = 'prestashop.res.partner.category'
 
     direct = [
         ('name', 'name'),
@@ -21,7 +20,7 @@ class PartnerCategoryImportMapper(ImportMapper):
     ]
 
     @mapping
-    def prestashop_id(self, record):
+    def external_id(self, record):
         return {'prestashop_id': record['id']}
 
     @mapping
@@ -29,29 +28,24 @@ class PartnerCategoryImportMapper(ImportMapper):
         return {'backend_id': self.backend_record.id}
 
 
-@prestashop
-class PartnerCategoryImporter(TranslatableRecordImporter):
-    """ Import one translatable record """
-    _model_name = [
-        'prestashop.res.partner.category',
-    ]
+class PartnerCategoryImporter(Component):
+    _name = 'prestashop.res.partner.category.importer'
+    _inherit = 'prestashop.importer'
+    _apply_on = ['prestashop.res.partner.category']
 
-    _translatable_fields = {
-        'prestashop.res.partner.category': ['name'],
-    }
-
-    def _after_import(self, binding):
-        super(PartnerCategoryImporter, self)._after_import(binding)
-        record = self.prestashop_record
-        if float(record['reduction']):
-            import_record(
-                self.session,
-                'prestashop.groups.pricelist',
-                self.backend_record.id,
-                record['id']
-            )
+    # def _after_import(self, binding):
+    #     super(PartnerCategoryImporter, self)._after_import(binding)
+    #     record = self.prestashop_record
+    #     if float(record['reduction']):
+    #         import_record(
+    #             self.session,
+    #             'prestashop.groups.pricelist',
+    #             self.backend_record.id,
+    #             record['id']
+    #         )
 
 
-@prestashop
-class PartnerCategoryBatchImporter(DelayedBatchImporter):
-    _model_name = 'prestashop.res.partner.category'
+class PartnerCategoryBatchImporter(Component):
+    _name = 'prestashop.res.partner.category.batch.importer'
+    _inherit = 'prestashop.delayed.batch.importer'
+    _apply_on = ['prestashop.res.partner.category']

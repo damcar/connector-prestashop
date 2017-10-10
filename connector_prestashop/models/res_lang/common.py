@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
-
-from openerp import models, fields
-
-from ...unit.backend_adapter import GenericAdapter
-from ...backend import prestashop
+from odoo import models, fields
+from odoo.addons.component.core import Component
 
 
 class PrestashopResLang(models.Model):
     _name = 'prestashop.res.lang'
-    _inherit = 'prestashop.binding.odoo'
+    _inherit = 'prestashop.binding'
     _inherits = {'res.lang': 'odoo_id'}
 
     odoo_id = fields.Many2one(
@@ -22,6 +19,10 @@ class PrestashopResLang(models.Model):
     )
     active = fields.Boolean(
         string='Active in PrestaShop',
+        default=False,
+    )
+    default = fields.Boolean(
+        string='Default',
         default=False,
     )
 
@@ -37,7 +38,9 @@ class ResLang(models.Model):
     )
 
 
-@prestashop
-class ResLangAdapter(GenericAdapter):
-    _model_name = 'prestashop.res.lang'
+class ResLangAdapter(Component):
+    _name = 'prestashop.res.lang.adapter'
+    _inherit = 'prestashop.adapter'
+    _apply_on = 'prestashop.res.lang'
+
     _prestashop_model = 'languages'

@@ -1,27 +1,16 @@
 # -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
-import re
-
-from openerp import fields, _
-from openerp.addons.connector.queue.job import job
-from openerp.addons.connector.unit.mapper import (
-    ImportMapper,
-    mapping,
-    only_create,
-)
-from ...unit.importer import (
-    PrestashopImporter,
-    import_batch,
-    DelayedBatchImporter,
-)
-from ...backend import prestashop
-from openerp.addons.connector.unit.mapper import backend_to_m2o
+from odoo import _
+from odoo.addons.component.core import Component
+from odoo.addons.connector.components.mapper import mapping, only_create
+from odoo.addons.connector.unit.mapper import external_to_m2o
 
 
-@prestashop
-class PartnerImportMapper(ImportMapper):
-    _model_name = 'prestashop.res.partner'
+class PartnerImportMapper(Component):
+    _name = 'prestashop.res.partner.mapper'
+    _inherit = 'prestashop.import.mapper'
+    _apply_on = 'prestashop.res.partner'
 
     direct = [
         ('date_add', 'date_add'),
@@ -31,18 +20,18 @@ class PartnerImportMapper(ImportMapper):
         ('company', 'company'),
         ('active', 'active'),
         ('note', 'comment'),
-        (backend_to_m2o('id_shop_group'), 'shop_group_id'),
-        (backend_to_m2o('id_shop'), 'shop_id'),
-        (backend_to_m2o('id_default_group'), 'default_category_id'),
+        (external_to_m2o('id_shop_group'), 'shop_group_id'),
+        (external_to_m2o('id_shop'), 'shop_id'),
+        (external_to_m2o('id_default_group'), 'default_category_id'),
     ]
 
-    @mapping
-    def pricelist(self, record):
-        binder = self.binder_for('prestashop.groups.pricelist')
-        pricelist = binder.to_odoo(record['id_default_group'], unwrap=True)
-        if not pricelist:
-            return {}
-        return {'property_product_pricelist': pricelist.id}
+    # @mapping
+    # def pricelist(self, record):
+    #     binder = self.binder_for('prestashop.groups.pricelist')
+    #     pricelist = binder.to_odoo(record['id_default_group'], unwrap=True)
+    #     if not pricelist:
+    #         return {}
+    #     return {'property_product_pricelist': pricelist.id}
 
     @mapping
     def birthday(self, record):
@@ -58,17 +47,19 @@ class PartnerImportMapper(ImportMapper):
 
     @mapping
     def groups(self, record):
+        if self.backend_record.version == '1.6.0.9':
+            group_key = 'groups'
+        elif self.backend_record.version == '1.6.1.2':
+            group_key = 'group'
         groups = record.get(
-            'associations', {}).get('groups', {}).get(
-            self.backend_record.get_version_ps_key('group'), [])
+            'associations', {}).get('groups', {}).get(group_key, [])
         if not isinstance(groups, list):
             groups = [groups]
         model_name = 'prestashop.res.partner.category'
         partner_category_bindings = self.env[model_name].browse()
         binder = self.binder_for(model_name)
         for group in groups:
-            partner_category_bindings |= binder.to_odoo(group['id'])
-
+            partner_category_bindings |= binder.to_internal(group['id'])
         result = {'group_ids': [(6, 0, partner_category_bindings.ids)],
                   'category_id': [(4, b.odoo_id.id)
                                   for b in partner_category_bindings]}
@@ -83,7 +74,7 @@ class PartnerImportMapper(ImportMapper):
         binder = self.binder_for('prestashop.res.lang')
         erp_lang = None
         if record.get('id_lang'):
-            erp_lang = binder.to_odoo(record['id_lang'])
+            erp_lang = binder.to_internal(record['id_lang'])
         if not erp_lang:
             erp_lang = self.env.ref('base.lang_en')
         return {'lang': erp_lang.code}
@@ -104,14 +95,18 @@ class PartnerImportMapper(ImportMapper):
         return {'company_id': self.backend_record.company_id.id}
 
 
-@prestashop
-class ResPartnerImporter(PrestashopImporter):
-    _model_name = 'prestashop.res.partner'
+class PartnerImporter(Component):
+    _name = 'prestashop.res.partner.importer'
+    _inherit = 'prestashop.importer'
+    _apply_on = ['prestashop.res.partner']
 
     def _import_dependencies(self):
+        if self.backend_record.version == '1.6.0.9':
+            group_key = 'groups'
+        elif self.backend_record.version == '1.6.1.2':
+            group_key = 'group'
         groups = self.prestashop_record.get('associations', {}) \
-            .get('groups', {}).get(
-            self.backend_record.get_version_ps_key('group'), [])
+            .get('groups', {}).get(group_key, [])
         if not isinstance(groups, list):
             groups = [groups]
         for group in groups:
@@ -119,26 +114,30 @@ class ResPartnerImporter(PrestashopImporter):
                                     'prestashop.res.partner.category')
 
     def _after_import(self, binding):
-        super(ResPartnerImporter, self)._after_import(binding)
-        binder = self.binder_for()
-        ps_id = binder.to_backend(binding)
-        import_batch.delay(
-            self.session,
-            'prestashop.address',
-            self.backend_record.id,
-            filters={'filter[id_customer]': '%d' % (ps_id,)},
-            priority=10,
-        )
+        super(PartnerImporter, self)._after_import(binding)
+        address_importer = self.component(usage='prestashop.address.importer',
+                                          model_name='prestashop.address')
+        address_importer.run(self.external_id, binding)
 
 
-@prestashop
-class PartnerBatchImporter(DelayedBatchImporter):
-    _model_name = 'prestashop.res.partner'
+class PartnerBatchImporter(Component):
+    _name = 'prestashop.res.partner.batch.importer'
+    _inherit = 'prestashop.delayed.batch.importer'
+    _apply_on = ['prestashop.res.partner']
+
+    def run(self, filters=None):
+        since_date = filters.pop('since_date', None)
+        if since_date:
+            filters = {'date': '1', 'filter[date_upd]': '>[%s]' % (since_date), 'limit': '20'}
+            record_ids = self.backend_adapter.search(filters)
+            for record_id in record_ids:
+                self._import_record(record_id)
 
 
-@prestashop
-class AddressImportMapper(ImportMapper):
-    _model_name = 'prestashop.address'
+class AddressImportMapper(Component):
+    _name = 'prestashop.address.mapper'
+    _inherit = 'prestashop.import.mapper'
+    _apply_on = 'prestashop.address'
 
     direct = [
         ('address1', 'street'),
@@ -150,7 +149,7 @@ class AddressImportMapper(ImportMapper):
         ('postcode', 'zip'),
         ('date_add', 'date_add'),
         ('date_upd', 'date_upd'),
-        (backend_to_m2o('id_customer'), 'prestashop_partner_id'),
+        (external_to_m2o('id_customer'), 'prestashop_partner_id'),
     ]
 
     @mapping
@@ -160,7 +159,7 @@ class AddressImportMapper(ImportMapper):
     @mapping
     def parent_id(self, record):
         binder = self.binder_for('prestashop.res.partner')
-        parent = binder.to_odoo(record['id_customer'], unwrap=True)
+        parent = binder.to_internal(record['id_customer'], unwrap=True)
         return {'parent_id': parent.id}
 
     @mapping
@@ -179,7 +178,7 @@ class AddressImportMapper(ImportMapper):
     def country(self, record):
         if record.get('id_country'):
             binder = self.binder_for('prestashop.res.country')
-            country = binder.to_odoo(record['id_country'], unwrap=True)
+            country = binder.to_internal(record['id_country'], unwrap=True)
             return {'country_id': country.id}
         return {}
 
@@ -195,9 +194,11 @@ class AddressImportMapper(ImportMapper):
         return {'type': 'other'}
 
 
-@prestashop
-class AddressImporter(PrestashopImporter):
-    _model_name = 'prestashop.address'
+class AddressImporter(Component):
+    _name = 'prestashop.address.importer'
+    _inherit = 'prestashop.importer'
+    # _apply_on = ['prestashop.res.partner']
+    _usage = 'prestashop.address.importer'
 
     def _check_vat(self, vat):
         vat_country, vat_number = vat[:2].lower(), vat[2:]
@@ -215,52 +216,29 @@ class AddressImporter(PrestashopImporter):
                 ' ', '').replace('-', '')
         if vat_number:
             # TODO: move to custom module
-            regexp = re.compile('^[a-zA-Z]{2}')
-            if not regexp.match(vat_number):
-                vat_number = 'ES' + vat_number
+            # regexp = re.compile('^[a-zA-Z]{2}')
+            # if not regexp.match(vat_number):
+            #     vat_number = 'ES' + vat_number
             if self._check_vat(vat_number):
                 binding.parent_id.write({'vat': vat_number})
             else:
-                msg = _('Please, check the VAT number: %s') % vat_number
-                self.backend_record.add_checkpoint(
-                    model=binding.parent_id._name,
-                    record_id=binding.parent_id.id,
-                    message=msg,
-                )
+                msg = _('Please check the VAT number: %s') % vat_number
+                self.backend_record.add_checkpoint(binding, message=msg)
+            #     msg = _('Please, check the VAT number: %s') % vat_number
+            #     self.backend_record.add_checkpoint(
+            #         model=binding.parent_id._name,
+            #         record_id=binding.parent_id.id,
+            #         message=msg,
+            #     )
+
+    def run(self, external_id, binding):
+        filters = {'filter[id_customer]': '%d' % (external_id,)}
+        record_ids = self.backend_adapter.search(filters)
+        for record_id in record_ids:
+            super(AddressImporter, self).run(record_id)
 
 
-@prestashop
-class AddressBatchImporter(DelayedBatchImporter):
-    _model_name = 'prestashop.address'
-
-
-@job(default_channel='root.prestashop')
-def import_customers_since(
-        session, backend_id, since_date=None, **kwargs):
-    """ Prepare the import of partners modified on PrestaShop """
-    filters = None
-    if since_date:
-        filters = {
-            'date': '1',
-            'filter[date_upd]': '>[%s]' % since_date}
-    now_fmt = fields.Datetime.now()
-    result = import_batch(
-        session,
-        'prestashop.res.partner.category',
-        backend_id,
-        filters,
-        **kwargs
-    ) or ''
-    result += import_batch(
-        session,
-        'prestashop.res.partner',
-        backend_id,
-        filters,
-        priority=15,
-        **kwargs
-    ) or ''
-
-    session.env['prestashop.backend'].browse(backend_id).write({
-        'import_partners_since': now_fmt,
-    })
-    return result
+# class AddressBatchImporter(Component):
+#     _name = 'prestashop.address.batch.importer'
+#     _inherit = 'prestashop.delayed.batch.importer'
+#     _apply_on = ['prestashop.address']

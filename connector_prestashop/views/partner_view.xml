@@ -18,10 +18,28 @@
             <page name="connector" position="inside">
                 <group string="PrestaShop Bindings">
                     <field  name="prestashop_bind_ids" nolabel="1"/>
+                    <field  name="prestashop_address_bind_ids" nolabel="1"/>
                 </group>
             </page>
+            <field name="category_id" position="after">
+                <field name="newsletter"/>
+                <field name="birthday"/>
+            </field>
         </field>
     </record>
+
+    <!--<record id="view_partner_form_test" model="ir.ui.view">-->
+        <!--<field name="name">res.partner.form.test</field>-->
+        <!--<field name="model">prestashop.res.partner</field>-->
+        <!--<field name="mode">primary</field>-->
+        <!--<field eval="7" name="priority"/>-->
+        <!--<field name="inherit_id" ref="base.view_partner_form"/>-->
+        <!--<field name="arch" type="xml">-->
+            <!--<field name="category_id" position="after">-->
+                <!--<field name="newsletter"/>-->
+            <!--</field>-->
+        <!--</field>-->
+    <!--</record>-->
 
     <record id="view_prestashop_res_partner_form" model="ir.ui.view">
         <field name="name">prestashop.res.partner.form</field>
@@ -30,12 +48,14 @@
             <form string="PrestaShop Partner">
                 <group>
                     <field name="shop_group_id"/>
+                    <field name="shop_id"/>
                     <field name="backend_id"/>
-                    <field name="prestashop_id"/>
+                    <field name="external_id"/>
                     <field name="date_add"/>
                     <field name="date_upd"/>
-                    <field name="group_ids" widget="many2many_tags"/>
+                    <!--<field name="group_ids" widget="many2many_tags"/>-->
                     <field name="newsletter"/>
+                    <field name="email"/>
                 </group>
             </form>
         </field>
@@ -64,7 +84,7 @@
                     <field name="shop_group_id"/>
                     <field name="backend_id"/>
                     <field name="prestashop_partner_id"/>
-                    <field name="prestashop_id"/>
+                    <field name="external_id"/>
                     <field name="date_add"/>
                     <field name="date_upd"/>
                     <field name="vat_number"/>
@@ -84,53 +104,53 @@
         </field>
     </record>
 
-    <record id="view_partner_category_form" model="ir.ui.view">
-        <field name="name">res.partner.category.form</field>
-        <field name="model">res.partner.category</field>
-        <field name="inherit_id" ref="base.view_partner_category_form" />
-        <field name="arch" type="xml">
-            <field name="parent_id" position="after">
-                <field name="prestashop_bind_ids">
-                    <form string="PrestaShop">
-                        <field name="backend_id"/>
-                        <field name="prestashop_id"/>
-                    </form>
-                    <tree string="PrestaShop">
-                        <field name="backend_id"/>
-                    </tree>
-                </field>
-            </field>
-        </field>
-    </record>
+    <!--<record id="view_partner_category_form" model="ir.ui.view">-->
+        <!--<field name="name">res.partner.category.form</field>-->
+        <!--<field name="model">res.partner.category</field>-->
+        <!--<field name="inherit_id" ref="base.view_partner_category_form" />-->
+        <!--<field name="arch" type="xml">-->
+            <!--<field name="parent_id" position="after">-->
+                <!--<field name="prestashop_bind_ids">-->
+                    <!--<form string="PrestaShop">-->
+                        <!--<field name="backend_id"/>-->
+                        <!--<field name="external_id"/>-->
+                    <!--</form>-->
+                    <!--<tree string="PrestaShop">-->
+                        <!--<field name="backend_id"/>-->
+                    <!--</tree>-->
+                <!--</field>-->
+            <!--</field>-->
+        <!--</field>-->
+    <!--</record>-->
 
-    <record id="view_prestashop_partner_category_form" model="ir.ui.view">
-        <field name="name">prestashop.res.partner.category.form</field>
-        <field name="model">prestashop.res.partner.category</field>
-        <field name="arch" type="xml">
-            <form string="PrestaShop Partner Category">
-                <group name="binding" string="Binding">
-                    <field name="backend_id"/>
-                    <field name="prestashop_id"/>
-                </group>
-                <group name="information" string="Information">
-                    <field name="name"/>
-                    <field name="date_add"/>
-                    <field name="date_upd"/>
-                </group>
-            </form>
-        </field>
-    </record>
+    <!--<record id="view_prestashop_partner_category_form" model="ir.ui.view">-->
+        <!--<field name="name">prestashop.res.partner.category.form</field>-->
+        <!--<field name="model">prestashop.res.partner.category</field>-->
+        <!--<field name="arch" type="xml">-->
+            <!--<form string="PrestaShop Partner Category">-->
+                <!--<group name="binding" string="Binding">-->
+                    <!--<field name="backend_id"/>-->
+                    <!--<field name="external_id"/>-->
+                <!--</group>-->
+                <!--<group name="information" string="Information">-->
+                    <!--<field name="name"/>-->
+                    <!--<field name="date_add"/>-->
+                    <!--<field name="date_upd"/>-->
+                <!--</group>-->
+            <!--</form>-->
+        <!--</field>-->
+    <!--</record>-->
 
-    <record id="view_prestashop_partner_category_tree" model="ir.ui.view">
-        <field name="name">prestashop.res.partner.category.tree</field>
-        <field name="model">prestashop.res.partner.category</field>
-        <field name="arch" type="xml">
-            <tree string="PrestaShop Partner Category">
-                <field name="backend_id"/>
-                <field name="prestashop_id"/>
-                <field name="name"/>
-            </tree>
-        </field>
-    </record>
+    <!--<record id="view_prestashop_partner_category_tree" model="ir.ui.view">-->
+        <!--<field name="name">prestashop.res.partner.category.tree</field>-->
+        <!--<field name="model">prestashop.res.partner.category</field>-->
+        <!--<field name="arch" type="xml">-->
+            <!--<tree string="PrestaShop Partner Category">-->
+                <!--<field name="backend_id"/>-->
+                <!--<field name="external_id"/>-->
+                <!--<field name="name"/>-->
+            <!--</tree>-->
+        <!--</field>-->
+    <!--</record>-->
 
 </odoo>

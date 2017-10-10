@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
-from openerp import fields, models
-
-from ...unit.backend_adapter import GenericAdapter
-from ...backend import prestashop
+from odoo import models, fields, api
+from odoo.addons.component.core import Component
 
 
 class ResPartnerCategory(models.Model):
@@ -20,7 +18,7 @@ class ResPartnerCategory(models.Model):
 
 class PrestashopResPartnerCategory(models.Model):
     _name = 'prestashop.res.partner.category'
-    _inherit = 'prestashop.binding.odoo'
+    _inherit = 'prestashop.binding'
     _inherits = {'res.partner.category': 'odoo_id'}
 
     odoo_id = fields.Many2one(
@@ -46,7 +44,9 @@ class PrestashopResPartnerCategory(models.Model):
     # check if we can drop this!
 
 
-@prestashop
-class PartnerCategoryAdapter(GenericAdapter):
-    _model_name = 'prestashop.res.partner.category'
+class PartnerCategoryAdapter(Component):
+    _name = 'prestashop.res.partner.category.adapter'
+    _inherit = 'prestashop.adapter'
+    _apply_on = 'prestashop.res.partner.category'
+
     _prestashop_model = 'groups'

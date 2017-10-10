@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
-from openerp import fields, models
-
-from ...unit.backend_adapter import GenericAdapter
-from ...backend import prestashop
+from odoo import models, fields
+from odoo.addons.component.core import Component
 
 
 class ProductPricelist(models.Model):
@@ -19,7 +17,7 @@ class ProductPricelist(models.Model):
 
 class PrestashopGroupsPricelist(models.Model):
     _name = 'prestashop.groups.pricelist'
-    _inherit = 'prestashop.binding.odoo'
+    _inherit = 'prestashop.binding'
     _inherits = {'product.pricelist': 'odoo_id'}
 
     odoo_id = fields.Many2one(
@@ -31,7 +29,9 @@ class PrestashopGroupsPricelist(models.Model):
     )
 
 
-@prestashop
-class PricelistAdapter(GenericAdapter):
-    _model_name = 'prestashop.groups.pricelist'
+class PricelistAdapter(Component):
+    _name = 'prestashop.groups.pricelist'
+    _inherit = 'prestashop.adapter'
+    _apply_on = 'prestashop.groups.pricelist'
+
     _prestashop_model = 'groups'

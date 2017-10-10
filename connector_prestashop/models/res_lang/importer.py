@@ -1,22 +1,34 @@
 # -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
+from odoo.addons.component.core import Component
+from odoo.addons.connector.components.mapper import mapping
 
-from ...unit.auto_matching_importer import AutoMatchingImporter
-from ...backend import prestashop
+
+class ResLangImportMapper(Component):
+    _name = 'prestashop.res.lang.mapper'
+    _inherit = 'prestashop.import.mapper'
+    _apply_on = 'prestashop.res.lang'
+
+    @mapping
+    def backend_id(self, record):
+        return {'backend_id': self.backend_record.id}
+
+    @mapping
+    def odoo_id(self, record):
+        lang = self.env['res.lang'].search(['|', ('active', '=', True), ('active', '=', False), ('iso_code', '=', record['iso_code'])], limit=1)
+        if lang:
+            return {'odoo_id': lang.id}
+
+    @mapping
+    def active(self, record):
+        return {'active': (record.get('active') == '1')}
 
 
-@prestashop
-class LangImporter(AutoMatchingImporter):
-    _model_name = 'prestashop.res.lang'
-    _erp_field = 'code'
-    _ps_field = 'language_code'
-    _copy_fields = [
-        ('active', 'active'),
+class ResLangImporter(Component):
+    _name = 'prestashop.res.lang.importer'
+    _inherit = 'prestashop.importer'
+    _apply_on = 'prestashop.res.lang'
+
+    _translatable_fields = [
     ]
-
-    def _compare_function(self, ps_val, erp_val, ps_dict, erp_dict):
-        if len(erp_val) >= 2 and len(ps_val) >= 2 and \
-                erp_val[0:2].lower() == ps_val[0:2].lower():
-            return True
-        return False

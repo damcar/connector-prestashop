@@ -7,14 +7,14 @@
 
 {
     "name": "PrestaShop-Odoo connector",
-    "version": "9.0.1.0.3",
+    "version": "10.0.1.0.0",
     "license": "AGPL-3",
     "depends": [
         "account",
         "product",
         "product_multi_category",  # oca/product-attribute
         "connector_ecommerce",  # oca/connector-ecommerce
-        "product_multi_image",  # oca/product-attribute
+        # "product_multi_image",  # oca/product-attribute
         "purchase",
         "product_variant_supplierinfo",  # oca/product-variant
         # TODO: perhaps not needed:
@@ -22,12 +22,12 @@
     ],
     "external_dependencies": {
         'python': [
-            "html2text",
+            # "html2text",
             "prestapyt",
             # tests dependencies
-            "freezegun",
-            "vcr",
-            "bs4",
+            # "freezegun",
+            # "vcr",
+            # "bs4",
         ],
     },
     "author": "Akretion,"
@@ -41,22 +41,24 @@
         'demo/backend.xml',
     ],
     'data': [
-        'data/cron.xml',
-        'data/product_decimal_precision.xml',
+        # 'data/cron.xml',
+        # 'data/product_decimal_precision.xml',
         'views/prestashop_model_view.xml',
-        'views/product_view.xml',
-        'views/product_category_view.xml',
-        'views/image_view.xml',
-        'views/delivery_view.xml',
+        'views/product_template_view.xml',
+        'views/prestashop_product_combination.xml',
+        'views/product_product_view.xml',
+        # 'views/product_category_view.xml',
+        # 'views/image_view.xml',
+        # 'views/delivery_view.xml',
         'views/connector_prestashop_menu.xml',
         'views/partner_view.xml',
-        'views/sale_view.xml',
-        'views/account_view.xml',
-        'views/stock_view.xml',
-        'security/ir.model.access.csv',
-        'security/prestashop_security.xml',
-        'data/ecommerce_data.xml',
+        # 'views/sale_view.xml',
+        # 'views/account_view.xml',
+        # 'views/stock_view.xml',
+        # 'security/ir.model.access.csv',
+        # 'security/prestashop_security.xml',
+        # 'data/ecommerce_data.xml',
     ],
-    'installable': False,
+    'installable': True,
     "application": True,
 }
