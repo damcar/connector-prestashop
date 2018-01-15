@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_partner_category_form" model="ir.ui.view">
+        <field name="name">res.partner.category.form</field>
+        <field name="model">res.partner.category</field>
+        <field name="inherit_id" ref="base.view_partner_category_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <group string="PrestaShop Bindings">
+                    <field  name="prestashop_bind_ids" nolabel="1"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="prestashop_res_partner_category_tree" model="ir.ui.view">
+        <field name="name">prestashop.res.partner.category.tree</field>
+        <field name="model">prestashop.res.partner.category</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="backend_id"/>
+                <field name="external_id"/>
+                <field name="date_add"/>
+                <field name="date_upd"/>
+            </tree>
+        </field>
+    </record>
+</odoo>

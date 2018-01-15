@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  prestashoperpconnect for Odoo
+  Copyright (C) 2012 Akretion Benoît Guillot <benoit.guillot@akretion.com>
+  The licence is in the file __openerp__.py
+-->
+
+<odoo>
+
+    <menuitem id="menu_prestashop_root"
+        parent="connector.menu_connector_root"
+        name="PrestaShop"
+        sequence="10"
+        groups="connector.group_connector_manager"/>
+
+    <menuitem id="menu_prestashop_backend"
+        name="Backends"
+        parent="menu_prestashop_root"
+        action="action_prestashop_backend"/>
+
+    <menuitem id="menu_prestashop_shop_group"
+        name="Shop Groups"
+        parent="menu_prestashop_root"
+        sequence="20"
+        action="action_prestashop_shop_group"/>
+
+    <menuitem id="menu_prestashop_shop"
+        name="Shops"
+        parent="menu_prestashop_root"
+        sequence="30"
+        action="action_prestashop_shop"/>
+
+    <menuitem id="menu_prestashop_carrier"
+        name="Sale Order States"
+        parent="menu_prestashop_root"
+        sequence="40"
+        action="prestashop_sale_order_state_action"/>
+
+</odoo>

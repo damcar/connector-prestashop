@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form" model="ir.ui.view">
+        <field name="name">res.partner.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="connector.view_partner_connector_form" />
+        <field name="arch" type="xml">
+            <page name="connector" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </page>
+            <page name="connector" position="inside">
+                <group string="PrestaShop Bindings" attrs="{'invisible': [('parent_id', '!=', False)]}">
+                    <field  name="prestashop_bind_ids" nolabel="1"/>
+                </group>
+                <group string="PrestaShop Bindings" attrs="{'invisible': [('parent_id', '=', False)]}">
+                    <field  name="prestashop_address_bind_ids" nolabel="1"/>
+                </group>
+            </page>
+            <field name="category_id" position="after">
+                <field name="birthday"/>
+                <field name="newsletter"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="prestashop_res_partner_form" model="ir.ui.view">
+        <field name="name">prestashop.res.partner.form</field>
+        <field name="model">prestashop.res.partner</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="shop_group_id"/>
+                    <field name="shop_id"/>
+                    <field name="backend_id"/>
+                    <field name="external_id"/>
+                    <field name="date_add"/>
+                    <field name="date_upd"/>
+                    <field name="default_category_id"/>
+                    <field name="group_ids" widget="many2many_tags"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <record id="prestashop_res_partner_tree" model="ir.ui.view">
+        <field name="name">prestashop.res.partner.tree</field>
+        <field name="model">prestashop.res.partner</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="backend_id"/>
+                <field name="shop_group_id"/>
+                <field name="external_id"/>
+                <field name="date_add"/>
+                <field name="date_upd"/>
+                <button name="resync"
+                    type="object"
+                    string="Resync" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="prestashop_address_form" model="ir.ui.view">
+        <field name="name">prestashop.address.form</field>
+        <field name="model">prestashop.address</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="shop_group_id"/>
+                    <field name="backend_id"/>
+                    <field name="prestashop_partner_id"/>
+                    <field name="external_id"/>
+                    <field name="date_add"/>
+                    <field name="date_upd"/>
+                    <field name="vat_number"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <record id="prestashop_address_tree" model="ir.ui.view">
+        <field name="name">prestashop.address.tree</field>
+        <field name="model">prestashop.address</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="backend_id"/>
+                <field name="shop_group_id"/>
+                <field name="external_id"/>
+                <field name="date_add"/>
+                <field name="date_upd"/>
+            </tree>
+        </field>
+    </record>
+</odoo>

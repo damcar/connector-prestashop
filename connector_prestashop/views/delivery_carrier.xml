@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="delivery_carrier_form" model="ir.ui.view">
+        <field name="name">delivery.carrier.form</field>
+        <field name="model">delivery.carrier</field>
+        <field name="inherit_id" ref="delivery.view_delivery_carrier_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Connectors" name="connector">
+                    <group string="PrestaShop Bindings">
+                        <field  name="prestashop_bind_ids" nolabel="1"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="prestashop_delivery_carrier_tree" model="ir.ui.view">
+        <field name="name">prestashop.delivery.carrier.tree</field>
+        <field name="model">prestashop.delivery.carrier</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="backend_id"/>
+                <field name="external_id"/>
+                <field name="id_reference"/>
+                <field name="active_ext"/>
+            </tree>
+        </field>
+    </record>
+</odoo>

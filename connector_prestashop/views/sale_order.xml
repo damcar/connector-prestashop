@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sale_order_form" model="ir.ui.view">
+        <field name="name">sale.order.form</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="priority" eval="100"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page name="connector" string="Connectors">
+                    <field name="prestashop_bind_ids" nolabel="1"/>
+                </page>
+            </xpath>
+            <xpath expr="//div[@name='carrier_selection']" position="after">
+                <field name="shop_id"/>
+                <field name="sale_order_state_id"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="prestashop_sale_order_form" model="ir.ui.view">
+       <field name="model">prestashop.sale.order</field>
+       <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="backend_id"/>
+                            <field name="external_id"/>
+                            <field name="shop_group_id"/>
+                            <field name="shop_id"/>
+                        </group>
+                        <group>
+                            <field name="date_add"/>
+                            <field name="date_upd"/>
+                            <field name="prestashop_invoice_number"/>
+                            <field name="prestashop_delivery_number"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Discounts">
+                            <field name="total_discounts"/>
+                            <field name="total_discounts_tax_excluded"/>
+                            <field name="total_discounts_tax_included"/>
+                        </group>
+                        <group string="Shipping">
+                            <field name="total_shipping"/>
+                            <field name="total_shipping_tax_included"/>
+                            <field name="total_shipping_tax_excluded"/>
+                        </group>
+                    </group>
+                    <group string="Total">
+                        <field name="total_amount"/>
+                        <field name="total_amount_tax_included"/>
+                        <field name="total_amount_tax_excluded"/>
+                        <field name="total_amount_tax"/>
+                    </group>
+                    <group string="Lines">
+                        <field name="prestashop_order_line_ids" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+       </field>
+    </record>
+
+    <record id="prestashop_sale_order_tree" model="ir.ui.view">
+        <field name="model">prestashop.sale.order</field>
+        <field name="arch" type="xml">
+            <tree create="0">
+                <field name="backend_id" string="Backend"/>
+                <field name="date_add"/>
+                <field name="date_upd"/>
+                <field name="shop_id"/>
+                <field name="external_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="prestashop_sale_order_line_tree" model="ir.ui.view">
+        <field name="model">prestashop.sale.order.line</field>
+        <field name="arch" type="xml">
+            <tree create="0">
+                <field name="backend_id" string="Backend"/>
+                <field name="external_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="prestashop_sale_order_line_form" model="ir.ui.view">
+       <field name="model">prestashop.sale.order.line</field>
+       <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="backend_id"/>
+                            <field name="external_id"/>
+                        </group>
+                        <group>
+                            <field name="product_price"/>
+                            <field name="unit_price_tax_incl"/>
+                            <field name="unit_price_tax_excl"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+       </field>
+    </record>
+</odoo>
