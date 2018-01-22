@@ -19,6 +19,13 @@ class ProductTemplate(models.Model):
         string='PrestaShop Bindings',
     )
 
+    def recompute_price(self):
+        self.ensure_one()
+        for variant in self.product_variant_ids:
+            if variant.default_on:
+                base_price = variant.list_price - variant.impact_price
+                self.list_price = base_price
+
 
 class PrestashopProductTemplate(models.Model):
     _name = 'prestashop.product.template'

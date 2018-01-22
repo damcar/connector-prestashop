@@ -111,6 +111,8 @@ class PrestashopImporter(AbstractComponent):
         # special check on data before import
         self._validate_data(data)
         model = self.model.with_context(connector_no_export=True)
+        print(model)
+        print(data)
         binding = model.create(data)
         _logger.debug('%d created from prestashop %s', binding,
                       self.external_id)

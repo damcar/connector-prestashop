@@ -115,8 +115,13 @@ class ProductCombinationMapper(Component):
     def add_attribute_price(self, template_id, value_id, price_extra):
         price_obj = self.env['product.attribute.price']
         price_ids = price_obj.search([('product_tmpl_id', '=', template_id), ('value_id', '=', value_id)])
+        print(price_ids)
+        print('EEEEEEEEEE')
         if price_ids:
-            price_obj.write({'price_extra': price_extra})
+            print(price_extra)
+            print(price_obj)
+            price_ids.write({'price_extra': price_extra})
+            print('write price extra')
         else:
             price_obj.create({
                 'product_tmpl_id': template_id,

@@ -26,6 +26,3 @@ class ShopGroupImporter(Component):
     _name = 'prestashop.shop.group.importer'
     _inherit = 'prestashop.importer'
     _apply_on = 'prestashop.shop.group'
-
-    # _translatable_fields = [
-    # ]

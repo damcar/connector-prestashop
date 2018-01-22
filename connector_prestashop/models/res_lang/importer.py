@@ -31,6 +31,3 @@ class ResLangImporter(Component):
     _name = 'prestashop.res.lang.importer'
     _inherit = 'prestashop.importer'
     _apply_on = 'prestashop.res.lang'
-
-    # _translatable_fields = [
-    # ]

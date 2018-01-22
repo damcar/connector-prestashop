@@ -18,7 +18,7 @@ class ResPartner(models.Model):
         inverse_name='odoo_id',
         string='PrestaShop Address Bindings',
     )
-    newsletter = fields.Boolean(string='Newsletter')
+    newsletter = fields.Boolean(string='Newsletter', default=False)
     birthday = fields.Date(string='Birthday')
     shop_id = fields.Many2one(
         comodel_name='prestashop.shop',

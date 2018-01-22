@@ -384,7 +384,7 @@ class PrestashopBackend(models.Model):
             since_date = backend.import_orders_since
             for model_name in ['prestashop.sale.order']:
                 backend.env[model_name].with_delay().import_batch(backend, filters={'since_date': since_date})
-            backend.write({'import_orders_since': fields.Datetime.now()})
+            # backend.write({'import_orders_since': fields.Datetime.now()})
 
     #
     # @api.multi

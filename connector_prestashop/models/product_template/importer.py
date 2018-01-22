@@ -5,6 +5,7 @@ from odoo.addons.component.core import Component
 from odoo.addons.connector.components.mapper import mapping, only_create, \
     external_to_m2o
 from odoo.addons.connector.exception import MappingError, InvalidDataError
+from ...components.mapper import normalize_boolean
 import datetime
 import logging
 import base64
@@ -38,8 +39,8 @@ class TemplateMapper(Component):
         ('wholesale_price', 'standard_price'),
         (external_to_m2o('id_shop_default'), 'default_shop_id'),
         ('link_rewrite', 'link_rewrite'),
-        ('available_for_order', 'available_for_order'),
-        ('on_sale', 'on_sale'),
+        (normalize_boolean('available_for_order'), 'available_for_order'),
+        (normalize_boolean('on_sale'), 'on_sale'),
         ('reference', 'default_code'),
         ('ean13', 'barcode'),
     ]
@@ -222,10 +223,14 @@ class ProductTemplateImporter(Component):
         print('AFTER IMPORT 3END')
         print(binding.type)
         self.delete_default_product(binding)
+        self.recompute_price(binding)
         print('AFTER IMPORT 4END')
         print(binding.type)
         # image_importer = self.component(usage='product.image.importer')
         # image_importer.run(self.external_id, binding)
+
+    def recompute_price(self, binding):
+        binding.odoo_id.recompute_price()
 
     def delete_default_product(self, binding):
         if binding.product_variant_count != 1:
@@ -358,9 +363,10 @@ class ProductTemplateBatchImporter(Component):
         if since_date:
             filters = {'date': '1', 'filter[date_upd]': '>[%s]' % (since_date)}
             # filters = {'date': '1', 'filter[id]': '788'}
-            updated_ids = self.backend_adapter.search(filters)
-            for test_id in updated_ids:
-                self._import_record(test_id)
+        super(ProductTemplateBatchImporter, self).run(filters)
+            # updated_ids = self.backend_adapter.search(filters)
+            # for test_id in updated_ids:
+            #     self._import_record(test_id)
 
 
 class CatalogImageImporter(Component):

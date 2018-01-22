@@ -18,13 +18,9 @@ class PrestaShopImportMapper(AbstractComponent):
 #     _usage = 'export.mapper'
 
 
-# def normalize_datetime(field):
-#     """Change a invalid date which comes from Magento, if
-#     no real date is set to null for correct import to
-#     OpenERP"""
-#
-#     def modifier(self, record, to_attr):
-#         if record[field] == '0000-00-00 00:00:00':
-#             return None
-#         return record[field]
-#     return modifier
+def normalize_boolean(field):
+    def modifier(self, record, to_attr):
+        if record[field] == '0':
+            return False
+        return True
+    return modifier

@@ -26,7 +26,8 @@ class OnChangeManager(Component):
     def play_onchanges(self, model, values, onchange_fields):
         model = self.env[model]
         onchange_specs = model._onchange_spec()
-
+        print('onchange')
+        print(values)
         # we need all fields in the dict even the empty ones
         # otherwise 'onchange()' will not apply changes to them
         all_values = values.copy()

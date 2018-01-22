@@ -15,11 +15,16 @@ class ProductProduct(models.Model):
         copy=False,
         string='PrestaShop Bindings',
     )
-    default_on = fields.Boolean(string='Default On')
+    default_on = fields.Boolean(string='Default On', default=False)
     impact_price = fields.Float(
         string="Price Impact",
         digits=dp.get_precision('Product Price')
     )
+
+    # def create(self, vals):
+    #     res = super(ProductProduct, self).create(vals)
+    #     res.product_tmpl_id.recompute_price()
+    #     return res
 
 
 class PrestashopProductCombination(models.Model):

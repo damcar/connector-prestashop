@@ -3,6 +3,7 @@
 
 from odoo import _
 from odoo.addons.component.core import Component
+from ...components.mapper import normalize_boolean
 from odoo.addons.connector.components.mapper import mapping
 from odoo.addons.connector.components.mapper import external_to_m2o
 from odoo.addons.connector.exception import MappingError, InvalidDataError
@@ -26,9 +27,10 @@ class ProductCategoryBatchImporter(Component):
         since_date = filters.pop('since_date', None)
         if since_date:
             filters = {'date': '1', 'filter[date_upd]': '>[%s]' % (since_date)}
-            updated_ids = self.backend_adapter.search(filters)
-            for test_id in updated_ids:
-                self._import_record(test_id)
+        super(ProductCategoryBatchImporter, self).run(filters)
+            # updated_ids = self.backend_adapter.search(filters)
+            # for test_id in updated_ids:
+            #     self._import_record(test_id)
 
 
 class ProductCategoryMapper(Component):
@@ -44,7 +46,7 @@ class ProductCategoryMapper(Component):
         ('meta_keywords', 'meta_keywords'),
         ('meta_title', 'meta_title'),
         (external_to_m2o('id_shop_default'), 'default_shop_id'),
-        ('active', 'active'),
+        (normalize_boolean('active'), 'active'),
     ]
 
     @mapping

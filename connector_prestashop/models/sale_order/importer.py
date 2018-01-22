@@ -57,11 +57,11 @@ class SaleOrderMapper(Component):
 
     def _add_shipping_line(self, map_record, values):
         record = map_record.source
+        binder = self.binder_for('prestashop.sale.order')
+        prestashop_order = binder.to_internal(record.get('id'))
         amount_incl = float(record.get('total_shipping_tax_incl') or 0.0)
         amount_excl = float(record.get('total_shipping_tax_excl') or 0.0)
         line_builder = self.component(usage='order.line.builder.shipping')
-        # add even if the price is 0, otherwise odoo will add a shipping
-        # line in the order when we ship the picking
         # TODO : incl or excl
         line_builder.price_unit = amount_excl
         if values.get('carrier_id'):
@@ -69,21 +69,46 @@ class SaleOrderMapper(Component):
             line_builder.product = carrier.product_id
         vals = line_builder.get_line()
         vals['prestashop_is_shipping'] = True
-        line = (0, 0, vals)
+        order = prestashop_order.odoo_id
+        line_obj = order.order_line.filtered(lambda line: line.prestashop_is_shipping == True)
+        if order and line_obj:
+            vals['order_id'] = order.id
+            line = (1, line_obj.id, vals)
+        else:
+            line = (0, 0, vals)
         values['order_line'].append(line)
         return values
 
     def _add_discount_line(self, map_record, values):
         record = map_record.source
+        binder = self.binder_for('prestashop.sale.order')
+        prestashop_order = binder.to_internal(record.get('id'))
+        line_obj = False
+        order = False
+        if prestashop_order:
+            order = prestashop_order.odoo_id
+            line_obj = order.order_line.filtered(lambda line: line.product_id.id == self.backend_record.discount_product_id.id)
         amount_excl = float(record.get('total_discounts_tax_incl') or 0.0)
         amount_incl = float(record.get('total_discounts_tax_excl') or 0.0)
-        if not (amount_excl or amount_incl):
+        if not (amount_excl or amount_incl) and not line_obj:
             return values
         line_builder = self.component(usage='order.line.builder.gift')
         # TODO : incl or excl
         line_builder.price_unit = amount_excl
         line_builder.product = self.backend_record.discount_product_id
-        line = (0, 0, line_builder.get_line())
+        vals = line_builder.get_line()
+        if order:
+            if line_obj:
+                if not (amount_excl or amount_incl):
+                    line = (2, line_obj.id, 0)
+                else:
+                    vals['order_id'] = order.id
+                    line = (1, line_obj.id, vals)
+            else:
+                vals['order_id'] = order.id
+                line = (0, 0, vals)
+        else:
+            line = (0, 0, vals)
         values['order_line'].append(line)
         return values
 
@@ -98,12 +123,18 @@ class SaleOrderMapper(Component):
         return items
 
     def finalize(self, map_record, values):
+        # print('rrrrrrrrrrrrrrrrrrrrrrrrr')
+        # print(values)
         values.setdefault('order_line', [])
         values = self._add_shipping_line(map_record, values)
         values = self._add_discount_line(map_record, values)
         onchange = self.component(
             usage='ecommerce.onchange.manager.sale.order'
         )
+        print('ONCHANGE')
+        print(values)
+        print(values['prestashop_order_line_ids'])
+        # print('DDDDDDDDD')
         return onchange.play(values, values['prestashop_order_line_ids'])
 
     @mapping
@@ -273,6 +304,16 @@ class SaleOrderLineMapper(Component):
     def backend_id(self, record):
         return {'backend_id': self.backend_record.id}
 
+    @mapping
+    def order_id(self, record):
+        val = {}
+        print(record)
+        binder = self.binder_for('prestashop.sale.order.line')
+        line = binder.to_internal(record['id'], unwrap=True)
+        if line:
+            val['order_id'] = line.order_id.id
+        return val
+
 
 class ImportMapChild(Component):
     _name = 'sale.order.child.import'
@@ -285,6 +326,7 @@ class ImportMapChild(Component):
         for item in items_values:
             line = binder.to_internal(item['external_id'], unwrap=True)
             if line:
+                # item['order_id'] = line.order_id.id
                 lines.append((1, line.prestashop_bind_ids.id, item))
             else:
                 lines.append((0, 0, item))

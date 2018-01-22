@@ -3,6 +3,7 @@
 
 from odoo import _
 from odoo.addons.component.core import Component
+from ...components.mapper import normalize_boolean
 from odoo.addons.connector.components.mapper import mapping, only_create, \
     external_to_m2o
 
@@ -16,21 +17,13 @@ class PartnerImportMapper(Component):
         ('date_add', 'date_add'),
         ('date_upd', 'date_upd'),
         ('email', 'email'),
-        ('newsletter', 'newsletter'),
-        ('active', 'active'),
+        (normalize_boolean('newsletter'), 'newsletter'),
+        (normalize_boolean('active'), 'active'),
         ('note', 'comment'),
         (external_to_m2o('id_shop_group'), 'shop_group_id'),
         (external_to_m2o('id_shop'), 'shop_id'),
         (external_to_m2o('id_default_group'), 'default_category_id'),
     ]
-
-    # @mapping
-    # def pricelist(self, record):
-    #     binder = self.binder_for('prestashop.groups.pricelist')
-    #     pricelist = binder.to_odoo(record['id_default_group'], unwrap=True)
-    #     if not pricelist:
-    #         return {}
-    #     return {'property_product_pricelist': pricelist.id}
 
     @mapping
     def birthday(self, record):
@@ -131,9 +124,7 @@ class PartnerBatchImporter(Component):
         since_date = filters.pop('since_date', None)
         if since_date:
             filters = {'date': '1', 'filter[date_upd]': '>[%s]' % (since_date)}
-            record_ids = self.backend_adapter.search(filters)
-            for record_id in record_ids:
-                self._import_record(record_id)
+        super(PartnerBatchImporter, self).run(filters)
 
 
 class AddressImportMapper(Component):
@@ -226,8 +217,6 @@ class AddressImporter(Component):
                 self.backend_record.add_checkpoint(binding, message=msg)
 
     def run(self, external_id):
-        print(external_id)
-        print(type(external_id))
         filters = {'filter[id_customer]': '%d' % (int(external_id),)}
         record_ids = self.backend_adapter.search(filters)
         for record_id in record_ids:
