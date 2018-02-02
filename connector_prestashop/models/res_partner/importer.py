@@ -142,7 +142,7 @@ class AddressImportMapper(Component):
         ('date_add', 'date_add'),
         ('date_upd', 'date_upd'),
         (external_to_m2o('id_customer'), 'prestashop_partner_id'),
-        ('deleted', 'deleted'),
+        (normalize_boolean('deleted'), 'deleted'),
     ]
 
     @mapping
