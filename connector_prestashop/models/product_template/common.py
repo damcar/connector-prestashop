@@ -93,4 +93,3 @@ class TemplateAdapter(Component):
     _apply_on = 'prestashop.product.template'
 
     _prestashop_model = 'products'
-    # _prestashop_image_model = 'images/products'

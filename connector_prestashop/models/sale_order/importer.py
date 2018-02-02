@@ -114,7 +114,6 @@ class SaleOrderMapper(Component):
 
     def _map_child(self, map_record, from_attr, to_attr, model_name):
         """ Convert items of the record as defined by children """
-        print(model_name)
         assert self._map_child_usage is not None, "_map_child_usage required"
         child_records = from_attr(self, map_record.source)
         mapper_child = self._get_map_child_component(model_name)
@@ -123,18 +122,12 @@ class SaleOrderMapper(Component):
         return items
 
     def finalize(self, map_record, values):
-        # print('rrrrrrrrrrrrrrrrrrrrrrrrr')
-        # print(values)
         values.setdefault('order_line', [])
         values = self._add_shipping_line(map_record, values)
         values = self._add_discount_line(map_record, values)
         onchange = self.component(
             usage='ecommerce.onchange.manager.sale.order'
         )
-        print('ONCHANGE')
-        print(values)
-        print(values['prestashop_order_line_ids'])
-        # print('DDDDDDDDD')
         return onchange.play(values, values['prestashop_order_line_ids'])
 
     @mapping
@@ -227,9 +220,6 @@ class SaleOrderImporter(Component):
         if isinstance(rows, dict):
             rows = [rows]
         for row in rows:
-            print('---------------')
-            print(row['product_id'])
-            print('---------------')
             self._import_dependency(row['product_id'], 'prestashop.product.template')
 
     def _create(self, data):
@@ -307,7 +297,6 @@ class SaleOrderLineMapper(Component):
     @mapping
     def order_id(self, record):
         val = {}
-        print(record)
         binder = self.binder_for('prestashop.sale.order.line')
         line = binder.to_internal(record['id'], unwrap=True)
         if line:

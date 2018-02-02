@@ -23,9 +23,7 @@ class ProductCombinationImporter(Component):
             'product_option_values', {}).get(ps_key, [])
         if not isinstance(option_values, list):
             option_values = [option_values]
-        # backend_adapter = self.unit_for(
-        #     BackendAdapter, 'prestashop.product.combination.option.value')
-        # backend_adapter = self.component(usage='product.combination.option.value.importer')
+
         backend_adapter = self.component(usage='test')
         for option_value in option_values:
             test = backend_adapter.read(option_value['id'])
@@ -53,29 +51,6 @@ class ProductCombinationMapper(Component):
     def combination_default(self, record):
         return {'default_on': bool(int(record['default_on'] or 0))}
 
-    # @mapping
-    # def product_tmpl_id(self, record):
-    #     template = self.get_main_template_binding(record)
-    #     return {'product_tmpl_id': template.odoo_id.id}
-
-    # @mapping
-    # def from_main_template(self, record):
-    #     main_template = self.get_main_template_binding(record)
-    #     result = {}
-    #     for attribute in self.from_main:
-    #         if attribute not in main_template:
-    #             continue
-    #         if hasattr(main_template[attribute], 'id'):
-    #             result[attribute] = main_template[attribute].id
-    #         elif type(main_template[attribute]) is models.BaseModel:
-    #             ids = []
-    #             for element in main_template[attribute]:
-    #                 ids.append(element.id)
-    #             result[attribute] = [(6, 0, ids)]
-    #         else:
-    #             result[attribute] = main_template[attribute]
-    #     return result
-
     def get_main_template_binding(self, record):
         template_binder = self.binder_for('prestashop.product.template')
         return template_binder.to_internal(record['id_product'])
@@ -98,30 +73,12 @@ class ProductCombinationMapper(Component):
             assert option_value_binding, "must have a binding for the option"
             yield option_value_binding.odoo_id
 
-    # @mapping
-    # def name(self, record):
-    #     template = self.get_main_template_binding(record)
-    #     options = []
-    #     for option_value_object in self._get_option_value(record):
-    #         key = option_value_object.attribute_id.name
-    #         value = option_value_object.name
-    #         options.append('%s:%s' % (key, value))
-    #     return {'name_template': template.name}
-
-    # def add_attribute_price(self, record, option_value_object):
-    #     price_obj = self.env['product.attribute.price']
-    #     price_obj.search([('product_tmpl_id', '=', template_binding.odoo_id.id), ('value_id', '', '')])
-
     def add_attribute_price(self, template_id, value_id, price_extra):
         price_obj = self.env['product.attribute.price']
+
         price_ids = price_obj.search([('product_tmpl_id', '=', template_id), ('value_id', '=', value_id)])
-        print(price_ids)
-        print('EEEEEEEEEE')
         if price_ids:
-            print(price_extra)
-            print(price_obj)
             price_ids.write({'price_extra': price_extra})
-            print('write price extra')
         else:
             price_obj.create({
                 'product_tmpl_id': template_id,
@@ -138,7 +95,7 @@ class ProductCombinationMapper(Component):
             results.append(value_id)
             price_extra = float(record['price'] or '0.0')
             self.add_attribute_price(template_binding.odoo_id.id, value_id, price_extra)
-        print('************* : %s' % results)
+
         return {'attribute_value_ids': [(6, 0, results)]}
 
     @mapping
@@ -151,67 +108,9 @@ class ProductCombinationMapper(Component):
             'categ_id': template_binding.categ_id.id
         }
 
-    # def _template_code_exists(self, code):
-    #     model = self.session.env['product.product']
-    #     combination_binder = self.binder_for('prestashop.product.combination')
-    #     template_ids = model.search([
-    #         ('default_code', '=', code),
-    #         ('company_id', '=', self.backend_record.company_id.id),
-    #     ], limit=1)
-    #     return template_ids and not combination_binder.to_backend(
-    #         template_ids, wrap=True)
-
-    # @mapping
-    # def default_code(self, record):
-    #     code = record.get('reference')
-    #     print('______________________________')
-    #     print(code)
-    #     if not code:
-    #         code = "%s_%s" % (record['id_product'], record['id'])
-    #     if not self._template_code_exists(code):
-    #         return {'default_code': code}
-    #     i = 1
-    #     current_code = '%s_%s' % (code, i)
-    #     while self._template_code_exists(current_code):
-    #         i += 1
-    #         current_code = '%s_%s' % (code, i)
-    #     return {'default_code': code}
-
     @mapping
     def backend_id(self, record):
         return {'backend_id': self.backend_record.id}
-
-    # @mapping
-    # def barcode(self, record):
-    #     barcode = record.get('barcode') or record.get('ean13')
-    #     check_ean = self.env['barcode.nomenclature'].check_ean
-    #     if barcode in ['', '0']:
-    #         backend_adapter = self.unit_for(
-    #             GenericAdapter, 'prestashop.product.template')
-    #         template = backend_adapter.read(record['id_product'])
-    #         barcode = template.get('barcode') or template.get('ean13')
-    #     if barcode and barcode != '0' and check_ean(barcode):
-    #         return {'barcode': barcode}
-    #     return {}
-
-    # def _get_tax_ids(self, record):
-    #     product_tmpl_adapter = self.unit_for(
-    #         GenericAdapter, 'prestashop.product.template')
-    #     tax_group = product_tmpl_adapter.read(record['id_product'])
-    #     tax_group = self.binder_for('prestashop.account.tax.group').to_odoo(
-    #         tax_group['id_tax_rules_group'], unwrap=True)
-    #     return tax_group.tax_ids
-    #
-    # def _apply_taxes(self, tax, price):
-    #     if self.backend_record.taxes_included == tax.price_include:
-    #         return price
-    #     factor_tax = tax.price_include and (1 + tax.amount / 100) or 1.0
-    #     if self.backend_record.taxes_included:
-    #         if not tax.price_include:
-    #             return price / factor_tax
-    #     else:
-    #         if tax.price_include:
-    #             return price * factor_tax
 
     @mapping
     def specific_price(self, record):
@@ -228,16 +127,6 @@ class ProductCombinationMapper(Component):
             'standard_price': cost_price or product_template.wholesale_price,
             'impact_price': impact
         }
-
-    # @only_create
-    # @mapping
-    # def odoo_id(self, record):
-    #     product = self.env['product.product'].search([
-    #         ('default_code', '=', record['reference']),
-    #         ('prestashop_bind_ids', '=', False),
-    #     ], limit=1)
-    #     if product:
-    #         return {'odoo_id': product.id}
 
 
 class ProductCombinationOptionImporter(Component):
@@ -342,10 +231,6 @@ class ProductCombinationOptionValueMapper(Component):
     @mapping
     def backend_id(self, record):
         return {'backend_id': self.backend_record.id}
-
-    # @mapping
-    # def price(self, record):
-    #     return {'price_extra': 50}
 
 
 class ProductProductBatchImporter(Component):

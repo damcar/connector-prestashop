@@ -71,6 +71,7 @@
                     <field name="external_id"/>
                     <field name="date_add"/>
                     <field name="date_upd"/>
+                    <field name="deleted"/>
                     <field name="vat_number"/>
                 </group>
             </form>
@@ -87,6 +88,7 @@
                 <field name="external_id"/>
                 <field name="date_add"/>
                 <field name="date_upd"/>
+                <field name="deleted"/>
             </tree>
         </field>
     </record>

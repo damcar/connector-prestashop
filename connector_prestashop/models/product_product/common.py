@@ -21,11 +21,6 @@ class ProductProduct(models.Model):
         digits=dp.get_precision('Product Price')
     )
 
-    # def create(self, vals):
-    #     res = super(ProductProduct, self).create(vals)
-    #     res.product_tmpl_id.recompute_price()
-    #     return res
-
 
 class PrestashopProductCombination(models.Model):
     _name = 'prestashop.product.combination'

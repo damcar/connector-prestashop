@@ -14,10 +14,6 @@ class ProductPricelistMapper(Component):
         ('name', 'name'),
     ]
 
-    # @mapping
-    # def static(self, record):
-    #     return {'active': True}
-
     @mapping
     def backend_id(self, record):
         return {'backend_id': self.backend_record.id}

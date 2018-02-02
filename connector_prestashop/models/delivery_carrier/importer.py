@@ -37,6 +37,3 @@ class DeliveryCarrierImporter(Component):
     _name = 'prestashop.delivery.carrier.importer'
     _inherit = 'prestashop.importer'
     _apply_on = 'prestashop.delivery.carrier'
-
-    # _translatable_fields = [
-    # ]

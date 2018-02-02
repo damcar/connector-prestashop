@@ -111,8 +111,8 @@ class PrestashopImporter(AbstractComponent):
         # special check on data before import
         self._validate_data(data)
         model = self.model.with_context(connector_no_export=True)
-        print(model)
-        print(data)
+        _logger.debug(model)
+        _logger.debug(data)
         binding = model.create(data)
         _logger.debug('%d created from prestashop %s', binding,
                       self.external_id)
@@ -229,7 +229,6 @@ class BatchImporter(AbstractComponent):
     page_size = 1000
 
     def run(self, filters=None, **kwargs):
-        print('RUN1')
         """ Run the synchronization """
         if filters is None:
             filters = {}
@@ -247,10 +246,10 @@ class BatchImporter(AbstractComponent):
             record_ids = self._run_page(filters, **kwargs)
 
     def _run_page(self, filters, **kwargs):
-        print('RUN_PAGE')
+        _logger.debug('RUN_PAGE')
         record_ids = self.backend_adapter.search(filters)
-        print(filters)
-        print(record_ids)
+        _logger.debug(filters)
+        _logger.debug(record_ids)
         for record_id in record_ids:
             self._import_record(record_id, **kwargs)
         return record_ids
@@ -279,7 +278,6 @@ class DelayedBatchImporter(AbstractComponent):
     _inherit = 'prestashop.batch.importer'
 
     def _import_record(self, external_id, job_options=None, **kwargs):
-        print('_IMPORT_RECORD')
         """ Delay the import of the records"""
         delayable = self.model.with_delay(**job_options or {})
         delayable.import_record(self.backend_record, external_id, **kwargs)

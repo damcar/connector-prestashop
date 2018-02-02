@@ -95,6 +95,10 @@ class PrestashopAddressMixin(models.AbstractModel):
         string='Updated At (on PrestaShop)',
         readonly=True,
     )
+    deleted = fields.Boolean(
+        string='Deleted',
+        readonly=True,
+    )
 
 
 class PrestashopAddress(models.Model):

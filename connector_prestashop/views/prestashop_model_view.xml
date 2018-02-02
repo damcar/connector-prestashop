@@ -13,10 +13,6 @@
     <field name="arch" type="xml">
         <form string="PrestaShop Backend">
             <header>
-                <!--<button name="button_check_connection"-->
-                        <!--type="object"-->
-                        <!--class="oe_highlight"-->
-                        <!--string="Check Connection"/>-->
                 <button name="synchronize_metadata"
                         type="object"
                         class="oe_highlight"
@@ -29,9 +25,6 @@
                         string="Synchronize Base Data"/>
             </header>
             <sheet>
-                <!--<h1>-->
-                    <!--<field name="name" class="oe_inline"/>-->
-                <!--</h1>-->
                 <group>
                     <field name="company_id" />
                 </group>
@@ -97,15 +90,6 @@
                                         class="oe_highlight"
                                         string="Import in background"/>
                         </group>
-                        <!--<group>-->
-                            <!--<div>-->
-                                <!--<label string="Import payment modes" class="oe_inline"/>-->
-                            <!--</div>-->
-                            <!--<button name="import_payment_modes"-->
-                                    <!--type="object"-->
-                                    <!--class="oe_highlight"-->
-                                    <!--string="Import in background"/>-->
-                        <!--</group>-->
                         <group>
                             <div>
                                <label string="Import sale orders since" class="oe_inline"/>
@@ -130,53 +114,6 @@
                                 class="oe_highlight"
                                 string="Import in background"/>
                         </group>
-                        <!--<group>-->
-                            <!--<div>-->
-                               <!--<label string="Import refunds" class="oe_inline"/>-->
-                               <!--<field name="import_refunds_since"-->
-                                    <!--class="oe_inline"-->
-                                    <!--nolabel="1"/>-->
-                            <!--</div>-->
-                            <!--<button name="import_refunds"-->
-                                <!--type="object"-->
-                                <!--class="oe_highlight"-->
-                                <!--string="Import in background"/>-->
-                        <!--</group>-->
-                        <!--<group>-->
-                            <!--<div>-->
-                               <!--<label string="Import suppliers" class="oe_inline"/>-->
-                               <!--<field name="import_suppliers_since"-->
-                                    <!--class="oe_inline"-->
-                                    <!--nolabel="1"/>-->
-                            <!--</div>-->
-                            <!--<button name="import_suppliers"-->
-                                <!--type="object"-->
-                                <!--class="oe_highlight"-->
-                                <!--string="Import in background"/>-->
-                        <!--</group>-->
-                        <!--<group>-->
-                            <!--<label string="Import carriers" class="oe_inline"/>-->
-                            <!--<div>-->
-                                <!--<button name="import_carriers"-->
-                                        <!--type="object"-->
-                                        <!--class="oe_highlight"-->
-                                        <!--string="Import in background"/>-->
-                            <!--</div>-->
-                        <!--</group>-->
-                        <!--<group>-->
-                            <!--<label string="Export stock quantities" class="oe_inline"/>-->
-                            <!--<button name="update_product_stock_qty"-->
-                                <!--type="object"-->
-                                <!--class="oe_highlight"-->
-                                <!--string="Export in background"/>-->
-                        <!--</group>-->
-                        <!--<group>-->
-                            <!--<label string="Import stock quantities" class="oe_inline"/>-->
-                            <!--<button name="import_stock_qty"-->
-                                <!--type="object"-->
-                                <!--class="oe_highlight"-->
-                                <!--string="Import in background"/>-->
-                        <!--</group>-->
                     </page>
                     <page string="Languages">
                         <field name="language_ids" nolabel="1">
