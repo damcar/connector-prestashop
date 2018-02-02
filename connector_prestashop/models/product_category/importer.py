@@ -28,9 +28,6 @@ class ProductCategoryBatchImporter(Component):
         if since_date:
             filters = {'date': '1', 'filter[date_upd]': '>[%s]' % (since_date)}
         super(ProductCategoryBatchImporter, self).run(filters)
-            # updated_ids = self.backend_adapter.search(filters)
-            # for test_id in updated_ids:
-            #     self._import_record(test_id)
 
 
 class ProductCategoryMapper(Component):

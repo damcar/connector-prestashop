@@ -7,6 +7,8 @@ from ...components.mapper import normalize_boolean
 from odoo.addons.connector.components.mapper import mapping, only_create, \
     external_to_m2o
 
+import logging
+_logger = logging.getLogger(__name__)
 
 class PartnerImportMapper(Component):
     _name = 'prestashop.res.partner.mapper'
@@ -92,9 +94,6 @@ class PartnerImporter(Component):
     _inherit = 'prestashop.importer'
     _apply_on = ['prestashop.res.partner']
 
-    # _translatable_fields = [
-    # ]
-
     def _import_dependencies(self):
         if self.backend_record.version == '1.6.0.9':
             group_key = 'groups'
@@ -143,6 +142,7 @@ class AddressImportMapper(Component):
         ('date_add', 'date_add'),
         ('date_upd', 'date_upd'),
         (external_to_m2o('id_customer'), 'prestashop_partner_id'),
+        ('deleted', 'deleted'),
     ]
 
     @mapping
@@ -192,9 +192,6 @@ class AddressImporter(Component):
     _inherit = 'prestashop.importer'
     _usage = 'prestashop.address.importer'
 
-    # _translatable_fields = [
-    # ]
-
     def _check_vat(self, vat):
         vat_country, vat_number = vat[:2].lower(), vat[2:]
         partner_model = self.env['res.partner']
@@ -209,6 +206,7 @@ class AddressImporter(Component):
         elif not record['vat_number'] and record.get('dni'):
             vat_number = record['dni'].replace('.', '').replace(
                 ' ', '').replace('-', '')
+
         if vat_number:
             if self._check_vat(vat_number):
                 binding.parent_id.write({'vat': vat_number})
@@ -216,8 +214,12 @@ class AddressImporter(Component):
                 msg = _('Please check the VAT number: %s') % vat_number
                 self.backend_record.add_checkpoint(binding, message=msg)
 
+        if 'deleted' in record and record['deleted']:
+            binding.parent_id.write({'active': False})
+
     def run(self, external_id):
-        filters = {'filter[id_customer]': '%d' % (int(external_id),)}
+        filters = {'filter[id_customer]': '%d' % (int(external_id))}
         record_ids = self.backend_adapter.search(filters)
         for record_id in record_ids:
+            _logger.debug(record_id)
             super(AddressImporter, self).run(record_id)

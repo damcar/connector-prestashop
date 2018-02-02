@@ -25,7 +25,7 @@ class PrestashopWebServiceImage(PrestaShopWebServiceDict):
         if options is not None:
             self._validate_query_options(options)
             full_url += "?%s" % (self._options_to_querystring(options),)
-        print(full_url)
+        _logger.debug(full_url)
         response = self._execute(full_url, 'GET')
         if response.content:
             image_content = base64.b64encode(response.content)
@@ -94,10 +94,10 @@ class PrestashopAPI(object):
         self._api = None
 
     def call(self, method, model, **kwargs):
-        print('ttttttttttttttttttttttttt')
-        print(method)
-        print(model)
-        print(kwargs)
+
+        _logger.debug(method)
+        _logger.debug(model)
+        _logger.debug(kwargs)
         result = getattr(self.api, method)(model, **kwargs)
         return result
 
@@ -178,9 +178,9 @@ class GenericAdapter(AbstractComponent):
         _logger.debug(
             'method read, model %s id %s, attributes %s',
             self._prestashop_model, str(id), str(attributes))
-        print(self._prestashop_model)
-        print(id)
-        print(attributes)
+        _logger.debug(self._prestashop_model)
+        _logger.debug(id)
+        _logger.debug(attributes)
         res = self._call('get', self._prestashop_model, resource_id=id,
                          options=attributes)
         first_key = list(res.keys())[0]

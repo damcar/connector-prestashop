@@ -148,12 +148,6 @@ class PrestashopSaleOrderLine(models.Model):
         ondelete='cascade',
         index=True,
     )
-    # backend_id = fields.Many2one(
-    #     comodel_name='prestashop.backend',
-    #     string='PrestaShop Backend',
-    #     required=False,
-    #     ondelete='restrict'
-    # )
     product_price = fields.Float(
         string='Product price in PrestaShop',
         digits=dp.get_precision('Account'),
@@ -172,11 +166,6 @@ class PrestashopSaleOrderLine(models.Model):
 
     @api.model
     def create(self, vals):
-        # lines = self.search([('external_id', '=', vals['external_id'])])
-        # if lines:
-        #     self.write(vals)
-        #     return True
-        # else:
         ps_sale_order = self.env['prestashop.sale.order'].search([
             ('id', '=', vals['prestashop_order_id'])
         ], limit=1)
@@ -190,16 +179,3 @@ class SaleOrderAdapter(Component):
     _apply_on = 'prestashop.sale.order'
 
     _prestashop_model = 'orders'
-    # _export_node_name = 'order'
-
-    # def update_sale_state(self, prestashop_id, datas):
-    #     return self.client.add('order_histories', datas)
-
-
-# class SaleOrderLineAdapter(Component):
-#     _name = 'prestashop.sale.order.line.adapter'
-#     _inherit = 'prestashop.adapter'
-#     _apply_on = 'prestashop.sale.order.line'
-#     _usage = 'prestashop.sale.order.line.adapter'
-#
-#     _prestashop_model = 'order_details'

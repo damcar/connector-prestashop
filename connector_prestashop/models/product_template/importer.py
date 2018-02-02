@@ -78,15 +78,6 @@ class TemplateMapper(Component):
             return {'date_upd': datetime.datetime.now()}
         return {'date_upd': record['date_upd']}
 
-    # @only_create
-    # @mapping
-    # def odoo_id(self, record):
-    #     """ Will bind the product to an existing one with the same code """
-    #     product = self.env['product.template'].search(
-    #         [('default_code', '=', record['reference'])], limit=1)
-    #     if product:
-    #         return {'odoo_id': product.id}
-
     def _template_code_exists(self, code):
         model = self.env['product.template']
         template_ids = model.search([
@@ -161,10 +152,6 @@ class TemplateMapper(Component):
             record['id_category_default'],
             unwrap=True,
         )
-        print('-----------')
-        print(record['id_category_default'])
-        print(category)
-        print('-----------')
         if category:
             return {'categ_id': category.id}
 
@@ -188,12 +175,8 @@ class TemplateMapper(Component):
         # be a 'virtual' product... but it does not exist...
         # The same if the product is a virtual one in prestashop.
         product_type = 'product'
-        print('1-----------')
-        print(record['type'])
         if record['type']['value'] and record['type']['value'] == 'virtual':
             product_type = 'service'
-        print(product_type)
-        print('1-----------')
         return {'type': product_type}
 
 
@@ -214,20 +197,10 @@ class ProductTemplateImporter(Component):
 
     def _after_import(self, binding):
         super(ProductTemplateImporter, self)._after_import(binding)
-        print('AFTER IMPORT1')
-        print(binding.type)
         self.import_combinations(binding)
-        print('AFTER IMPORT 2END')
-        print(binding.type)
         self.attribute_line(binding)
-        print('AFTER IMPORT 3END')
-        print(binding.type)
         self.delete_default_product(binding)
         self.recompute_price(binding)
-        print('AFTER IMPORT 4END')
-        print(binding.type)
-        # image_importer = self.component(usage='product.image.importer')
-        # image_importer.run(self.external_id, binding)
 
     def recompute_price(self, binding):
         binding.odoo_id.recompute_price()
@@ -237,31 +210,6 @@ class ProductTemplateImporter(Component):
             for product in binding.product_variant_ids:
                 if not product.attribute_value_ids:
                     product.unlink()
-
-    # def attribute_line(self, binding):
-    #     attr_line_value_ids = []
-    #     for attr_line in binding.attribute_line_ids:
-    #         attr_line_value_ids.extend(attr_line.value_ids.ids)
-    #     template_id = binding.odoo_id.id
-    #     products = self.env['product.product'].search([
-    #         ('product_tmpl_id', '=', template_id)]
-    #     )
-    #     if products:
-    #         attribute_ids = []
-    #         for product in products:
-    #             for attribute_value in product.attribute_value_ids:
-    #                 attribute_ids.append(attribute_value.attribute_id.id)
-    #                 # filter unique id for create relation
-    #         for attribute_id in set(attribute_ids):
-    #             values = products.mapped('attribute_value_ids').filtered(
-    #                 lambda x: (x.attribute_id.id == attribute_id and
-    #                            x.id not in attr_line_value_ids))
-    #             if values:
-    #                 self.env['product.attribute.line'].create({
-    #                     'attribute_id': attribute_id,
-    #                     'product_tmpl_id': template_id,
-    #                     'value_ids': [(6, 0, values.ids)],
-    #                 })
 
     def attribute_line(self, binding):
         old_attribute = {}
@@ -362,11 +310,7 @@ class ProductTemplateBatchImporter(Component):
         since_date = filters.pop('since_date', None)
         if since_date:
             filters = {'date': '1', 'filter[date_upd]': '>[%s]' % (since_date)}
-            # filters = {'date': '1', 'filter[id]': '788'}
         super(ProductTemplateBatchImporter, self).run(filters)
-            # updated_ids = self.backend_adapter.search(filters)
-            # for test_id in updated_ids:
-            #     self._import_record(test_id)
 
 
 class CatalogImageImporter(Component):
