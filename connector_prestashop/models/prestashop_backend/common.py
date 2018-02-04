@@ -216,6 +216,7 @@ class PrestashopBackend(models.Model):
         for backend in self:
             since_date = backend.import_carts_since
             for model_name in ['prestashop.cart']:
+                _logger.debug('MODEL: %s' % model_name)
                 self.env[model_name].with_delay().import_batch(backend, filters={'since_date': since_date})
             backend.write({'import_carts_since': fields.Datetime.now()})
 
