@@ -115,8 +115,7 @@ class CartBatchImporter(Component):
     def run(self, filters=None):
         since_date = filters.pop('since_date', None)
         if since_date:
-            filters = {'date': '1', 'filter[date_upd]': '>[%s]' % (since_date), 'filter[id_customer]': '>[0]',
-                       'filter[minimum_amount]': '>[0]'}
+            filters = {'date': '1', 'filter[date_upd]': '>[%s]' % (since_date), 'filter[id_customer]': '>[0]'}
         super(CartBatchImporter, self).run(filters)
 
 
@@ -141,7 +140,7 @@ class CartLineMapper(Component):
             )
         else:
             binder = self.binder_for('prestashop.product.template')
-            template = binder.to_internal(record['id_product'], unwrap=True)
+            template = binder.to_internal(record['id_product'], unwrap=True, no_backend_mapping=True)
             product = self.env['product.product'].search([
                 ('product_tmpl_id', '=', template.id),
                 ('company_id', '=', self.backend_record.company_id.id)],
@@ -165,6 +164,8 @@ class CartMapChild(Component):
     _usage = 'prestashop.cart.map.child'
 
     def format_items(self, items_values):
+        if len(items_values) == 0:
+            return False
         lines = [(5, 0, 0)]
         binder = self.binder_for('prestashop.cart.line')
         for item in items_values:
