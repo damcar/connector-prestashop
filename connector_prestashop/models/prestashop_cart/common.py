@@ -31,16 +31,11 @@ class PrestashopCart(models.Model):
 
     @api.model
     def create(self, vals):
-        # Avoid creating empty carts
-        if 'order_line' in vals and not vals['order_line']:
-            return False
-
         if vals.get('name', _('New')) == _('New'):
             if 'company_id' in vals:
                 vals['name'] = self.env['ir.sequence'].with_context(force_company=vals['company_id']).next_by_code('prestashop.cart') or _('New')
             else:
                 vals['name'] = self.env['ir.sequence'].next_by_code('prestashop.cart') or _('New')
-
         result = super(PrestashopCart, self).create(vals)
         return result
 

@@ -5,8 +5,6 @@ from odoo import api, models, fields
 from odoo.addons.queue_job.job import job, related_action
 # from openerp.addons.connector.session import ConnectorSession
 # from ...unit.importer import import_record
-import logging
-_logger = logging.getLogger(__name__)
 
 
 class PrestashopBinding(models.AbstractModel):
@@ -34,8 +32,6 @@ class PrestashopBinding(models.AbstractModel):
         """ Prepare the import of records modified on PrestaShop """
         if filters is None:
             filters = {}
-        _logger.debug('IMPORT BATCH')
-        _logger.debug('Filters: %s' % filters)
         with backend.work_on(self._name) as work:
             importer = work.component(usage='batch.importer')
             return importer.run(filters=filters)
