@@ -115,8 +115,7 @@ class CartBatchImporter(Component):
     def run(self, filters=None):
         since_date = filters.pop('since_date', None)
         if since_date:
-            filters = {'date': '1', 'filter[date_upd]': '>[%s]' % (since_date), 'filter[id_customer]': '>[0]',
-                       'filter[minimum_amount]': '>[0]'}
+            filters = {'date': '1', 'filter[date_upd]': '>[%s]' % (since_date), 'filter[id_customer]': '>[0]',}
         super(CartBatchImporter, self).run(filters)
 
 
