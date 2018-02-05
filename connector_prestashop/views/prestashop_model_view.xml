@@ -26,6 +26,7 @@
             </header>
             <sheet>
                 <group>
+                    <field name="is_master"/>
                     <field name="company_id" />
                 </group>
                 <group>
@@ -76,7 +77,8 @@
                             <button name="import_customers_since"
                                     type="object"
                                     class="oe_highlight"
-                                    string="Import in background"/>
+                                    string="Import in background"
+                                    attrs="{'invisible': [('is_master', '!=', True)]}"/>
                         </group>
                         <group>
                             <div>
@@ -88,7 +90,8 @@
                             <button name="import_products"
                                         type="object"
                                         class="oe_highlight"
-                                        string="Import in background"/>
+                                        string="Import in background"
+                                        attrs="{'invisible': [('is_master', '!=', True)]}"/>
                         </group>
                         <group>
                             <div>
@@ -138,6 +141,7 @@
         <tree string="PrestaShop Backend">
             <!--<field name="name"/>-->
             <field name="location"/>
+            <field name="is_master"/>
         </tree>
     </field>
 </record>
