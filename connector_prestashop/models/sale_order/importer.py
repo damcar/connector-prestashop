@@ -224,6 +224,8 @@ class SaleOrderImporter(Component):
 
     def _create(self, data):
         binding = super(SaleOrderImporter, self)._create(data)
+        if binding:
+            binding.odoo_id.onchange_partner_shipping_id()
         if binding.fiscal_position_id:
             binding.odoo_id._compute_tax_id()
         return binding

@@ -4,7 +4,7 @@
 import logging
 
 from odoo import models, fields, api, _, exceptions
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.addons.connector.models import checkpoint
 from contextlib import contextmanager
 
@@ -110,6 +110,8 @@ class PrestashopBackend(models.Model):
         domain=[('type_tax_use', '=', 'sale')],
     )
 
+    is_master = fields.Boolean('Is the master backend')
+
     @api.model
     def _default_pricelist_id(self):
         return self.env['product.pricelist'].search([], limit=1)
@@ -127,6 +129,14 @@ class PrestashopBackend(models.Model):
         for lang in self.language_ids:
             languages[lang.external_id] = lang.odoo_id.code
         return languages
+
+    @api.constrains('is_master')
+    def _check_master_backend(self):
+        if self.is_master:
+            master_backends = self.env['prestashop.backend'].search([('is_master', '=', True)])
+            if len(master_backends) > 1:
+                raise ValidationError(_('Error ! There is already a master backend.'))
+        return True
 
     @contextmanager
     @api.multi
@@ -232,22 +242,25 @@ class PrestashopBackend(models.Model):
     @api.model
     def cron_import_all(self):
         _logger.debug('Cron call: import_all')
+        master_backend_id = self.env['prestashop.backend'].search(['is_master', '=', True])
+        if master_backend_id:
+            master_backend_id.import_customers_since()
+            master_backend_id.import_products()
+
         backend_ids = self.env['prestashop.backend'].search([])
-        backend_ids.import_customers_since()
-        backend_ids.import_products()
-        backend_ids.import_carts()
         backend_ids.import_sale_orders()
+        backend_ids.import_carts()
 
     @api.model
     def cron_import_customers(self):
         _logger.debug('Cron call: import_customers_since')
-        backend_ids = self.env['prestashop.backend'].search([])
+        backend_ids = self.env['prestashop.backend'].search(['is_master', '=', True])
         backend_ids.import_customers_since()
 
     @api.model
     def cron_import_products(self):
         _logger.debug('Cron call: import_products')
-        backend_ids = self.env['prestashop.backend'].search([])
+        backend_ids = self.env['prestashop.backend'].search(['is_master', '=', True])
         backend_ids.import_products()
 
     @api.model
@@ -261,5 +274,3 @@ class PrestashopBackend(models.Model):
         _logger.debug('Cron call: import_sale_orders')
         backend_ids = self.env['prestashop.backend'].search([])
         backend_ids.import_sale_orders()
-
-
