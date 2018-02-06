@@ -242,7 +242,7 @@ class PrestashopBackend(models.Model):
     @api.model
     def cron_import_all(self):
         _logger.debug('Cron call: import_all')
-        master_backend_id = self.env['prestashop.backend'].search(['is_master', '=', True])
+        master_backend_id = self.env['prestashop.backend'].search([('is_master', '=', True)])
         if master_backend_id:
             master_backend_id.import_customers_since()
             master_backend_id.import_products()
@@ -254,13 +254,13 @@ class PrestashopBackend(models.Model):
     @api.model
     def cron_import_customers(self):
         _logger.debug('Cron call: import_customers_since')
-        backend_ids = self.env['prestashop.backend'].search(['is_master', '=', True])
+        backend_ids = self.env['prestashop.backend'].search([('is_master', '=', True)])
         backend_ids.import_customers_since()
 
     @api.model
     def cron_import_products(self):
         _logger.debug('Cron call: import_products')
-        backend_ids = self.env['prestashop.backend'].search(['is_master', '=', True])
+        backend_ids = self.env['prestashop.backend'].search([('is_master', '=', True)])
         backend_ids.import_products()
 
     @api.model
