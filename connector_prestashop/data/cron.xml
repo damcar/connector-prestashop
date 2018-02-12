@@ -1,21 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <data> <!-- noupdate="1" -->
-
-        <!-- CRON - import customers -->
-        <record id="cron_prestashop_import_all" model="ir.cron">
-            <field name="name">cron.prestashop.import.all</field>
-            <field name="active" eval="True" />
-            <field name="user_id" ref="base.user_root" />
-            <field name="interval_number">1</field>
-            <field name="interval_type">days</field>
-            <field name="numbercall">-1</field>
-            <field name="doal">1</field>
-            <field name="model_id" ref="model_prestashop_backend" />
-            <field name="code">model.cron_import_all()</field>
-            <field name="state">code</field>
-            <field name="type">ir.actions.server</field>
-        </record>
+    <data noupdate="1">
 
         <!-- CRON - import customers -->
         <record id="cron_prestashop_import_customers" model="ir.cron">
@@ -47,21 +32,6 @@
             <field name="type">ir.actions.server</field>
         </record>
 
-        <!-- CRON - import carts -->
-        <record id="cron_prestashop_import_carts" model="ir.cron">
-            <field name="name">cron.prestashop.import.carts</field>
-            <field name="active" eval="True" />
-            <field name="user_id" ref="base.user_root" />
-            <field name="interval_number">1</field>
-            <field name="interval_type">days</field>
-            <field name="numbercall">-1</field>
-            <field name="doal">1</field>
-            <field name="model_id" ref="model_prestashop_backend" />
-            <field name="code">model.cron_import_carts()</field>
-            <field name="state">code</field>
-            <field name="type">ir.actions.server</field>
-        </record>
-
         <!-- CRON - import sale orders -->
         <record id="cron_prestashop_import_sale_orders" model="ir.cron">
             <field name="name">cron.prestashop.import.sale.orders</field>
@@ -76,5 +46,21 @@
             <field name="state">code</field>
             <field name="type">ir.actions.server</field>
         </record>
+
+        <!-- CRON - import carts -->
+        <record id="cron_prestashop_import_carts" model="ir.cron">
+            <field name="name">cron.prestashop.import.carts</field>
+            <field name="active" eval="False" />
+            <field name="user_id" ref="base.user_root" />
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="doal">1</field>
+            <field name="model_id" ref="model_prestashop_backend" />
+            <field name="code">model.cron_import_carts()</field>
+            <field name="state">code</field>
+            <field name="type">ir.actions.server</field>
+        </record>
+
     </data>
 </odoo>

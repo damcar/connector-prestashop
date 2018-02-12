@@ -65,10 +65,9 @@ class PartnerImportMapper(Component):
 
     @mapping
     def lang(self, record):
-        binder = self.binder_for('prestashop.res.lang')
         erp_lang = None
         if record.get('id_lang'):
-            erp_lang = binder.to_internal(record['id_lang'])
+            erp_lang = self.env['prestashop.res.lang'].search([('external_id', '=', record['id_lang'])], limit=1)
         if not erp_lang:
             erp_lang = self.env.ref('base.lang_en')
         return {'lang': erp_lang.code}
@@ -153,6 +152,7 @@ class AddressImportMapper(Component):
     def parent_id(self, record):
         binder = self.binder_for('prestashop.res.partner')
         parent = binder.to_internal(record['id_customer'], unwrap=True)
+        #parent = self.env['prestashop.res.partner'].search([('external_id', '=', record['id_customer'])], limit=1)
         return {'parent_id': parent.id}
 
     @mapping
@@ -170,8 +170,7 @@ class AddressImportMapper(Component):
     @mapping
     def country(self, record):
         if record.get('id_country'):
-            binder = self.binder_for('prestashop.res.country')
-            country = binder.to_internal(record['id_country'], unwrap=True)
+            country = self.env['prestashop.res.country'].search([('external_id', '=', record['id_country'])], limit=1)
             return {'country_id': country.id}
         return {}
 

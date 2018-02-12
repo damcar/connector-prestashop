@@ -213,7 +213,7 @@ class PrestashopBackend(models.Model):
 
     @api.multi
     def import_products(self):
-        _logger.debug('CALL: import_products')
+        _logger.debug('CALL: import_products for %s' % self)
         for backend in self:
             since_date = backend.import_products_since
             for model_name in ['prestashop.product.template']:
@@ -261,6 +261,7 @@ class PrestashopBackend(models.Model):
     def cron_import_products(self):
         _logger.debug('Cron call: import_products')
         backend_ids = self.env['prestashop.backend'].search([('is_master', '=', True)])
+        _logger.debug('Import products for backends: %s' % backend_ids)
         backend_ids.import_products()
 
     @api.model
