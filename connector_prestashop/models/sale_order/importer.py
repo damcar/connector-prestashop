@@ -278,13 +278,14 @@ class SaleOrderLineMapper(Component):
                 unwrap=True,
             )
         else:
-            binder = self.binder_for('prestashop.product.template')
-            template = binder.to_internal(record['product_id'], unwrap=True)
-            product = self.env['product.product'].search([
-                ('product_tmpl_id', '=', template.id),
-                ('company_id', '=', self.backend_record.company_id.id)],
-                limit=1,
-            )
+            template = self.env['prestashop.product.template'].search([('external_id', '=', record['product_id'])],
+                                                                      limit=1)
+            if template:
+                product = self.env['product.product'].search([
+                    ('product_tmpl_id', '=', template.id),
+                    ('company_id', '=', self.backend_record.company_id.id)],
+                    limit=1,
+                )
         if not product:
             return {}
         return {
