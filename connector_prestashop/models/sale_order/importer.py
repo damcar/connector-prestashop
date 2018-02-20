@@ -133,20 +133,23 @@ class SaleOrderMapper(Component):
     @mapping
     def partner_id(self, record):
         binder = self.binder_for('prestashop.res.partner')
-        partner = binder.to_internal(record['id_customer'], unwrap=True)
-        return {'partner_id': partner.id}
+        partner = self.env['prestashop.res.partner'].search([('external_id', '=', record['id_customer'])])
+        #partner = binder.to_internal(record['id_customer'], unwrap=True)
+        return {'partner_id': partner.odoo_id.id}
 
     @mapping
     def partner_invoice_id(self, record):
         binder = self.binder_for('prestashop.address')
-        address = binder.to_internal(record['id_address_invoice'], unwrap=True)
-        return {'partner_invoice_id': address.id}
+        #address = binder.to_internal(record['id_address_invoice'], unwrap=True)
+        address = self.env['prestashop.res.partner'].search([('external_id', '=', record['id_address_invoice'])])
+        return {'partner_invoice_id': address.odoo_id.id}
 
     @mapping
     def partner_shipping_id(self, record):
         binder = self.binder_for('prestashop.address')
-        shipping = binder.to_internal(record['id_address_delivery'], unwrap=True)
-        return {'partner_shipping_id': shipping.id}
+        #shipping = binder.to_internal(record['id_address_delivery'], unwrap=True)
+        shipping = self.env['prestashop.res.partner'].search([('external_id', '=', record['id_address_delivery'])])
+        return {'partner_shipping_id': shipping.odoo_id.id}
 
     @mapping
     def backend_id(self, record):
@@ -282,7 +285,7 @@ class SaleOrderLineMapper(Component):
                                                                       limit=1)
             if template:
                 product = self.env['product.product'].search([
-                    ('product_tmpl_id', '=', template.id),
+                    ('product_tmpl_id', '=', template.odoo_id.id),
                     ('company_id', '=', self.backend_record.company_id.id)],
                     limit=1,
                 )
