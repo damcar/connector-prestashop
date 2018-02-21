@@ -151,8 +151,7 @@ class AddressImportMapper(Component):
     @mapping
     def parent_id(self, record):
         binder = self.binder_for('prestashop.res.partner')
-        parent = binder.to_internal(record['id_customer'], unwrap=True)
-        #parent = self.env['prestashop.res.partner'].search([('external_id', '=', record['id_customer'])], limit=1)
+        parent = binder.to_internal_without_backend(record['id_customer'], unwrap=True)
         return {'parent_id': parent.id}
 
     @mapping
