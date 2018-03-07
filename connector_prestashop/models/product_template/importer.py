@@ -201,6 +201,7 @@ class ProductTemplateImporter(Component):
         self.attribute_line(binding)
         self.delete_default_product(binding)
         self.recompute_price(binding)
+        self.import_stock_available(binding)
 
     def recompute_price(self, binding):
         binding.odoo_id.recompute_price()
@@ -300,6 +301,10 @@ class ProductTemplateImporter(Component):
             self._import_dependency(category['id'],
                                     'prestashop.product.category')
 
+    def import_stock_available(self, binding):
+        stock_available_importer = self.component(usage='prestashop.stock.available.importer',
+                                          model_name='prestashop.stock.available')
+        stock_available_importer.run(self.external_id)
 
 class ProductTemplateBatchImporter(Component):
     _name = 'prestashop.product.template.batch.importer'
@@ -309,7 +314,7 @@ class ProductTemplateBatchImporter(Component):
     def run(self, filters=None):
         since_date = filters.pop('since_date', None)
         if since_date:
-            filters = {'date': '1', 'filter[date_upd]': '>[%s]' % (since_date)}
+            filters = {'date': '1', 'filter[date_upd]': '>[%s]' % (since_date), 'id': 82 }
         super(ProductTemplateBatchImporter, self).run(filters)
 
 

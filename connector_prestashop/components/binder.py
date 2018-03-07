@@ -5,7 +5,7 @@ from odoo.addons.component.core import Component
 
 
 class PrestashopModelBinder(Component):
-    _name = 'prstashop.binder'
+    _name = 'prestashop.binder'
     _inherit = ['base.binder', 'base.prestashop.connector']
     _apply_on = [
         'prestashop.shop.group',
@@ -28,5 +28,6 @@ class PrestashopModelBinder(Component):
         'prestashop.sale.order.state',
         'prestashop.delivery.carrier',
         'prestashop.cart',
-        'prestashop.cart.line'
+        'prestashop.cart.line',
+        'prestashop.stock.available',
     ]

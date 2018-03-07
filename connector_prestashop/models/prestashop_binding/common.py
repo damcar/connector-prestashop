@@ -43,3 +43,4 @@ class PrestashopBinding(models.AbstractModel):
         with backend.work_on(self._name) as work:
             importer = work.component(usage='record.importer')
             return importer.run(external_id, force=force)
+

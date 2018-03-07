@@ -12,10 +12,10 @@ class PrestaShopImportMapper(AbstractComponent):
     _usage = 'import.mapper'
 
 
-# class MagentoExportMapper(AbstractComponent):
-#     _name = 'magento.export.mapper'
-#     _inherit = ['base.magento.connector', 'base.export.mapper']
-#     _usage = 'export.mapper'
+class PrestaShopExportMapper(AbstractComponent):
+    _name = 'prestashop.export.mapper'
+    _inherit = ['base.prestashop.connector', 'base.export.mapper']
+    _usage = 'export.mapper'
 
 
 def normalize_boolean(field):

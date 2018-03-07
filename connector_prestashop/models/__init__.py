@@ -17,3 +17,4 @@ from . import res_partner_category
 from . import sale_order
 from . import delivery_carrier
 from . import sale_order_state
+from . import prestashop_stock

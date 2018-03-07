@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html)
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from odoo.addons import decimal_precision as dp
 from odoo.addons.component.core import Component
+from odoo.addons.queue_job.job import job
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -25,6 +26,17 @@ class ProductTemplate(models.Model):
             if variant.default_on:
                 base_price = variant.list_price - variant.impact_price
                 self.list_price = base_price
+
+    @api.multi
+    def update_prestashop_quantities(self):
+        for template in self:
+            # Recompute product template PrestaShop qty
+            template.mapped('prestashop_bind_ids').recompute_prestashop_qty()
+            # Recompute variant PrestaShop qty
+            template.mapped(
+                'product_variant_ids.prestashop_bind_ids'
+            ).recompute_prestashop_qty()
+        return True
 
 
 class PrestashopProductTemplate(models.Model):
@@ -85,6 +97,42 @@ class PrestashopProductTemplate(models.Model):
         string='Cost Price',
         digits=dp.get_precision('Product Price'),
     )
+
+    @job(default_channel='root.prestashop')
+    @api.multi
+    def export_record(self, external_id, fields=None):
+        """ Export a record on Prestashop """
+        self.ensure_one()
+        with self.backend_id.work_on('prestashop.stock.available') as work:
+            exporter = work.component(usage='prestashop.stock.available.exporter')
+            return exporter.run(self, external_id, fields)
+
+    @api.multi
+    def recompute_prestashop_qty(self):
+        for product_binding in self:
+            new_qty = product_binding._prestashop_qty()
+            _logger.debug('&&&&&&&&&&')
+            _logger.debug('odoo id: %s' % self.odoo_id)
+            prestashop_stock = self.env['prestashop.stock.available'].search([('product_id', '=', self.odoo_id.id)])
+            if prestashop_stock:
+                _logger.debug('Prestashop stock obj: %s' % prestashop_stock)
+                external_id = prestashop_stock.external_id
+                _logger.debug('Prestashop stock external id: %s' % external_id)
+                _logger.debug('&&&&&&&&&&')
+                product_binding.export_record(external_id, {'quantity':new_qty})
+                prestashop_stock.write({
+                    'quantity': new_qty
+                })
+            else:
+                _logger.error('Prestashop stock available for Odoo id: %s' % self.odoo_id.id)
+        return True
+
+    def _prestashop_qty(self):
+        locations = self.env['stock.location'].search(
+            [('id', 'child_of', self.backend_id.warehouse_id.lot_stock_id.id),
+             ('usage', '=', 'internal')]
+        )
+        return self.with_context(location=locations.ids).qty_available
 
 
 class TemplateAdapter(Component):

@@ -94,13 +94,19 @@ class PrestashopAPI(object):
         self._api = None
 
     def call(self, method, model, **kwargs):
-
         _logger.debug(method)
         _logger.debug(model)
         _logger.debug(kwargs)
         result = getattr(self.api, method)(model, **kwargs)
         return result
 
+    def call_update(self, method, model, resource_id, fields):
+        _logger.debug(method)
+        _logger.debug(model)
+        _logger.debug(resource_id)
+        _logger.debug(fields)
+        result = getattr(self.api, method)(model, resource_id, fields)
+        return result
 
 class PrestashopCRUDAdapter(AbstractComponent):
     """ External Records Adapter for PrestaShop """
@@ -153,6 +159,17 @@ class PrestashopCRUDAdapter(AbstractComponent):
             )
         return prestashop_api.call(method, model, **kwargs)
 
+    def _call_update(self, method, model, resource_id, fields):
+        try:
+            prestashop_api = getattr(self.work, 'prestashop_api')
+        except AttributeError:
+            raise AttributeError(
+                'You must provide a prestashop_api attribute with a '
+                'PrestashopAPI instance to be able to use the '
+                'Backend Adapter.'
+            )
+        return prestashop_api.call_update(method, model, resource_id, fields)
+
 
 class GenericAdapter(AbstractComponent):
     _name = 'prestashop.adapter'
@@ -200,17 +217,13 @@ class GenericAdapter(AbstractComponent):
 
     def write(self, id, attributes=None):
         """ Update records on the external system """
-        attributes['id'] = id
         _logger.debug(
-            'method write, model %s, attributes %s',
-            self._prestashop_model,
-            str(attributes)
-        )
-        res = self.client.edit(
-            self._prestashop_model, {self._export_node_name: attributes})
-        if self._export_node_name_res:
-            return res['prestashop'][self._export_node_name_res]['id']
-        return res
+            'method read, model %s id %s, attributes %s',
+            self._prestashop_model, str(id), str(attributes))
+        _logger.debug(self._prestashop_model)
+        _logger.debug(id)
+        _logger.debug(attributes)
+        return self._call_update('partial_edit', self._prestashop_model, id, attributes)
 
     def delete(self, resource, ids):
         _logger.debug('method delete, model %s, ids %s',
